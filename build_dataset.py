@@ -14,9 +14,7 @@ def main(args):
     dataset_conf = OmegaConf.load(dataset_conf_path)
 
     # loading dataset
-    dataset = pd.read_csv(dataset_conf.train, sep="\t").loc[
-        :, ["document", "label"]
-    ]
+    dataset = pd.read_csv(dataset_conf.train, sep="\t").loc[:, ["document", "label"]]
     dataset = dataset.loc[dataset["document"].isna().apply(lambda elm: not elm), :]
     train, validation = train_test_split(
         dataset, test_size=args.valid_ratio, random_state=args.seed

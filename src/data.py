@@ -1,7 +1,8 @@
+from typing import Callable, List, Tuple
+
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from typing import Tuple, List, Callable
 
 
 class NSMCCorpus(Dataset):
