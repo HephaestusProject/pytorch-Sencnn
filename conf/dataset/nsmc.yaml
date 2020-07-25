@@ -1,0 +1,3 @@
+train: dataset/nsmc/train.txt
+test: dataset/nsmc/test.txt
+validation: dataset/nsmc/validation.txt
