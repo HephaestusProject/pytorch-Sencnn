@@ -23,6 +23,7 @@ def main(args):
         dataset, test_size=args.valid_ratio, random_state=args.seed
     )
     test = pd.read_csv(dconf.path.test, sep="\t").loc[:, ["document", "label"]]
+    test = test.loc[test["document"].isna().apply(lambda elm: not elm), :]
 
     path_dict = {
         "train": str((child_dir / "train.txt").absolute()),
