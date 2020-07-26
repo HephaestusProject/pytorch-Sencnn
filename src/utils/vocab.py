@@ -9,7 +9,7 @@ class Vocab:
         list_of_tokens: List[str] = None,
         pad_token: str = "<pad>",
         unk_token: str = "<unk>",
-        bos_token: str = "<bos>ㅈ",
+        bos_token: str = "<bos>",
         eos_token: str = "<eos>",
         cls_token: str = "<cls>",
         sep_token: str = "<sep>",
