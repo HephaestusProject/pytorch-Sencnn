@@ -31,9 +31,9 @@ class PreProcessor:
         list_of_tokens = self._pad(list_of_tokens) if self._pad else list_of_tokens
         return list_of_tokens
 
-    def encode(self, list_of_tokens: List[str]) -> List[int]:
+    def encode(self, string) -> List[int]:
         list_of_indices = self._vocab.to_indices(
-            self.pad(self.tokenize(list_of_tokens))
+            self.pad(self.tokenize(string))
         )
         return list_of_indices
 
@@ -49,7 +49,6 @@ class PadSequence:
         self, length: int, pad_val: Union[int, str], clip: bool = True
     ) -> None:
         """Instantiating PadSequence class
-
         Args:
             length (int): the maximum length to pad/clip the sequence
             pad_val (int): the pad value

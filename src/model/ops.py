@@ -18,12 +18,12 @@ class MultiChannelEmbedding(nn.Module):
         self._static = nn.Embedding.from_pretrained(
             torch.from_numpy(vocab.embedding),
             freeze=True,
-            padding_idx=vocab.to_indices(vocab.padding_token),
+            padding_idx=vocab.to_indices(vocab.pad_token),
         )
         self._non_static = nn.Embedding.from_pretrained(
             torch.from_numpy(vocab.embedding),
             freeze=False,
-            padding_idx=vocab.to_indices(vocab.padding_token),
+            padding_idx=vocab.to_indices(vocab.pad_token),
         )
         
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
