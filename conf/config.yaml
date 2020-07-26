@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - dataset: nsmc
+  - model: sencnn
+  - preprocessor: mecab_10_32
+  - runner: default

@@ -1,0 +1,5 @@
+# @package _group_
+epochs: 5
+batch_size: 256
+learning_rate: 1e-3
+patience: 5
