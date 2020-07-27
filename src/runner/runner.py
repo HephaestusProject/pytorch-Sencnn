@@ -6,7 +6,7 @@ from torch import optim
 from torch.utils.data import DataLoader
 from pytorch_lightning.core import LightningModule
 from omegaconf import DictConfig
-from runner.data import CORPUS_FACTORY
+from .data import CORPUS_FACTORY
 from .metric import cross_entropy
 
 
@@ -32,13 +32,20 @@ class Runner(LightningModule):
     def train_dataloader(self):
         return DataLoader(self._train_ds,
                           batch_size=self.hparams.batch_size,
-                          num_workers=4,
+                          num_workers=self.hparams.num_workers,
                           drop_last=True)
 
     def val_dataloader(self):
         return DataLoader(self._valid_ds,
                           batch_size=self.hparams.batch_size,
-                          num_workers=4,
+                          num_workers=self.hparams.num_workers,
+                          drop_last=False,
+                          shuffle=False)
+
+    def test_dataloader(self):
+        return DataLoader(self._test_ds,
+                          batch_size=self.hparams.batch_size,
+                          num_workers=self.hparams.num_workers,
                           drop_last=False,
                           shuffle=False)
 
@@ -59,8 +66,9 @@ class Runner(LightningModule):
     def training_epoch_end(self, outputs):
         avg_mb_loss = torch.stack([x["loss"] for x in outputs]).mean()
         avg_mb_acc = torch.stack([x["tr_acc"] for x in outputs]).mean()
+        tqdm_dict = {"tr_acc": avg_mb_acc, "tr_loss": avg_mb_loss}
         tensorboard_logs = {"tr_loss": avg_mb_loss, "tr_acc": avg_mb_acc}
-        return {"tr_loss": avg_mb_loss, "tr_acc": avg_mb_acc, "log": tensorboard_logs}
+        return {**tqdm_dict, "log": tensorboard_logs, "progress_bar": tqdm_dict}
 
     def validation_step(self, batch, batch_idx):
         x_mb, y_mb = batch
@@ -76,8 +84,9 @@ class Runner(LightningModule):
         total_loss = torch.stack([x["val_loss"] * x["n_pred"] for x in outputs]).sum()
         val_loss = total_loss / total_count
         val_acc = total_n_correct_pred / total_count
+        tqdm_dict = {"val_acc": val_acc, "val_loss": val_loss}
         tensorboard_logs = {"val_loss": val_loss, "val_acc": val_acc}
-        return {"val_loss": val_loss, "val_acc": val_acc, "log": tensorboard_logs}
+        return {**tqdm_dict, "log": tensorboard_logs, "progress_bar": tqdm_dict}
 
     def test_step(self, batch, batch_idx):
         x_mb, y_mb = batch
@@ -90,7 +99,7 @@ class Runner(LightningModule):
     def test_epoch_end(self, outputs):
         total_count = sum([x["n_pred"] for x in outputs])
         total_n_correct_pred = sum([x["n_correct_pred"] for x in outputs])
-        total_loss = torch.stack([x["val_loss"] * x["n_pred"] for x in outputs]).sum()
+        total_loss = torch.stack([x["test_loss"] * x["n_pred"] for x in outputs]).sum()
         test_loss = total_loss / total_count
         test_acc = total_n_correct_pred / total_count
         return {"test_loss": test_loss, "test_acc": test_acc}
