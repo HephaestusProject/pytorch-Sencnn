@@ -1,4 +1,3 @@
-# @package _group_
 name: nsmc
 path:
   train: /home/kbs/Documents/archive/pytorch-Sencnn/dataset/nsmc/train.txt

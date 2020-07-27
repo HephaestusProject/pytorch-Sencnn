@@ -1,23 +1,56 @@
+import pickle
 import torch
 import torch.nn as nn
 
 from torch import optim
+from torch.utils.data import DataLoader
 from pytorch_lightning.core import LightningModule
-from argparse import ArgumentParser
+from omegaconf import DictConfig
+from utils.data import CORPUS_FACTORY
 from .metric import cross_entropy
 
 
 class Runner(LightningModule):
-    def __init__(self, model: nn.Module, hparams):
+    def __init__(self, model: nn.Module, dconf: DictConfig, pconf: DictConfig, rconf: DictConfig):
         super().__init__()
-        self.model = model
-        self.hparams = hparams
+        self._model = model
+        self._dconf = dconf
+        self._pconf = pconf
+        self.hparams = rconf
 
     def forward(self, x):
-        return self.model(x)
+        return self._model(x)
+
+    def prepare_data(self) -> None:
+        with open(self._pconf.path, mode="rb") as io:
+            preprocessor = pickle.load(io)
+        corpus = CORPUS_FACTORY[self._dconf.name]
+        self._train_ds = corpus(self._dconf.path.train, preprocessor.encode)
+        self._valid_ds = corpus(self._dconf.path.validation, preprocessor.encode)
+        self._test_ds = corpus(self._dconf.path.test, preprocessor.encode)
+
+    def train_dataloader(self):
+        return DataLoader(self._train_ds,
+                          batch_size=self.hparams.batch_size,
+                          num_workers=self.hparams.num_workers,
+                          drop_last=True)
+
+    def val_dataloader(self):
+        return DataLoader(self._valid_ds,
+                          batch_size=self.hparams.batch_size,
+                          num_workers=self.hparams.num_workers,
+                          drop_last=False,
+                          shuffle=False)
+
+    def test_dataloader(self):
+        return DataLoader(self._test_ds,
+                          batch_size=self.hparams.batch_size,
+                          num_workers=self.hparams.num_workers,
+                          drop_last=False,
+                          shuffle=False)
 
     def configure_optimizers(self):
-        opt = optim.Adam(params=self.model.parameters(), lr=self.hparams.learning_rate)
+        opt = optim.Adam(params=self._model.parameters(), lr=self.hparams.learning_rate)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=self.hparams.patience)
         return [opt], [scheduler]
 
@@ -70,14 +103,3 @@ class Runner(LightningModule):
         test_loss = total_loss / total_count
         test_acc = total_n_correct_pred / total_count
         return {"test_loss": test_loss, "test_acc": test_acc}
-
-    @staticmethod
-    def add_runner_specific_args(parent_parser):
-        """
-        Specify the hyperparams for this LightningModule
-        """
-        # MODEL specific
-        parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument('--learning_rate', default=1e-3, type=float)
-        parser.add_argument('--patience', default=5, type=int)
-        return parser

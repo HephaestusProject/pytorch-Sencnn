@@ -1,4 +1,3 @@
-# @package _group_
 name: sencnn
 num_classes: 2
-dropout_ratio: .5
+dropout_rate: .5
