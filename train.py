@@ -5,6 +5,8 @@ from pathlib import Path
 from argparse import ArgumentParser
 from omegaconf import OmegaConf, DictConfig
 from pytorch_lightning import Trainer
+from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 from src.model.net import SenCNN
 from src.runner.runner import Runner
 from src.utils.data import CORPUS_FACTORY
@@ -49,7 +51,20 @@ def main(args) -> None:
 
     model = SenCNN(mconf.num_classes, mconf.dropout_rate, preprocessor.vocab)
     runner = Runner(model, args)
-    trainer = Trainer.from_argparse_args(args)
+
+    version = f"epochs={args.max_epochs}_batch_size={args.batch_size}_learning_rate={args.learning_rate}"
+    tb_logger = TensorBoardLogger(save_dir="experiments",
+                                  name=mconf.name,
+                                  version=version)
+
+    prefix = f"experiments/{mconf.name}/{version}/"
+    suffix = "{epoch:02d}-{tr_loss:.2f}-{val_loss:.2f}-{tr_acc:.2f}-{val_acc:.2f}"
+    filepath = prefix + suffix
+    checkpoint_callback = ModelCheckpoint(filepath=filepath,
+                                          save_top_k=2,
+                                          save_weights_only=True)
+
+    trainer = Trainer.from_argparse_args(args, logger=tb_logger, checkpoint_callback=checkpoint_callback)
     trainer.fit(runner, train_dataloader=tr_dl, val_dataloaders=val_dl)
 
 
