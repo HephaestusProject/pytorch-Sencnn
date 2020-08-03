@@ -26,9 +26,9 @@ def main(args):
     test = test.loc[test["document"].isna().apply(lambda elm: not elm), :]
 
     path_dict = {
-        "train": str((child_dir / "train.txt").absolute()),
-        "validation": str((child_dir / "validation.txt").absolute()),
-        "test": str((child_dir / "test.txt").absolute())
+        "train": str(child_dir / "train.txt"),
+        "validation": str(child_dir / "validation.txt"),
+        "test": str(child_dir / "test.txt")
     }
 
     dconf.path.update(path_dict)

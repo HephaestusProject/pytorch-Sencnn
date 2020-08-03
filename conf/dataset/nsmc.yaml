@@ -1,5 +1,5 @@
-name: nsmc
+type: nsmc
 path:
-  train: /home/kbs/Documents/archive/pytorch-Sencnn/dataset/nsmc/train.txt
-  test: /home/kbs/Documents/archive/pytorch-Sencnn/dataset/nsmc/test.txt
-  validation: /home/kbs/Documents/archive/pytorch-Sencnn/dataset/nsmc/validation.txt
+  train: dataset/nsmc/train.txt
+  test: dataset/nsmc/test.txt
+  validation: dataset/nsmc/validation.txt

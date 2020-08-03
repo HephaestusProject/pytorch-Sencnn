@@ -1,0 +1,7 @@
+batch_size: 256
+distributed_backend: ddp
+gpus: 2
+learning_rate: 0.001
+max_epochs: 5
+num_workers: 2
+patience: 5

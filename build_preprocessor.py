@@ -68,7 +68,7 @@ def main(args):
     if not child_dir.exists():
         child_dir.mkdir(parents=True)
 
-    path_dict = {"path": str((child_dir / "preprocessor.pkl").absolute())}
+    path_dict = {"path": str(child_dir / "preprocessor.pkl")}
     pconf.update(path_dict)
     OmegaConf.save(pconf, pconf_path)
 

@@ -1,24 +1,30 @@
 import torch
 import torch.nn as nn
 
-from torch import optim
+from omegaconf import DictConfig
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning.core import LightningModule
-from argparse import ArgumentParser
 from .metric import cross_entropy
 
 
 class Runner(LightningModule):
-    def __init__(self, model: nn.Module, hparams):
+    def __init__(self, model: nn.Module, rconf: DictConfig):
         super().__init__()
         self.model = model
-        self.hparams = hparams
+        self.save_hyperparameters()
+        self.hparams.update(rconf.dataloader.params)
+        self.hparams.update(rconf.optimizer.params)
+        self.hparams.update(rconf.scheduler.params)
+        self.hparams.update(rconf.trainer.params)
 
     def forward(self, x):
         return self.model(x)
 
     def configure_optimizers(self):
-        opt = optim.Adam(params=self.model.parameters(), lr=self.hparams.learning_rate)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=self.hparams.patience)
+        opt = Adam(params=self.model.parameters(),
+                   lr=self.hparams.learning_rate)
+        scheduler = ReduceLROnPlateau(opt, patience=self.hparams.patience)
         return [opt], [scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -71,13 +77,3 @@ class Runner(LightningModule):
         test_acc = total_n_correct_pred / total_count
         return {"test_loss": test_loss, "test_acc": test_acc}
 
-    @staticmethod
-    def add_runner_specific_args(parent_parser):
-        """
-        Specify the hyperparams for this LightningModule
-        """
-        # MODEL specific
-        parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument('--learning_rate', default=1e-3, type=float)
-        parser.add_argument('--patience', default=5, type=int)
-        return parser
