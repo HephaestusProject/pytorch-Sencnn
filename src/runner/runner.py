@@ -12,7 +12,6 @@ class Runner(LightningModule):
     def __init__(self, model: nn.Module, rconf: DictConfig):
         super().__init__()
         self.model = model
-        self.save_hyperparameters()
         self.hparams.update(rconf.dataloader.params)
         self.hparams.update(rconf.optimizer.params)
         self.hparams.update(rconf.scheduler.params)
