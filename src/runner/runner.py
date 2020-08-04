@@ -9,13 +9,13 @@ from .metric import cross_entropy
 
 
 class Runner(LightningModule):
-    def __init__(self, model: nn.Module, rconf: DictConfig):
+    def __init__(self, model: nn.Module, runner_config: DictConfig):
         super().__init__()
         self.model = model
-        self.hparams.update(rconf.dataloader.params)
-        self.hparams.update(rconf.optimizer.params)
-        self.hparams.update(rconf.scheduler.params)
-        self.hparams.update(rconf.trainer.params)
+        self.hparams.update(runner_config.dataloader.params)
+        self.hparams.update(runner_config.optimizer.params)
+        self.hparams.update(runner_config.scheduler.params)
+        self.hparams.update(runner_config.trainer.params)
 
     def forward(self, x):
         return self.model(x)

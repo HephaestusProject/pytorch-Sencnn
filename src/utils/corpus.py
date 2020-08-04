@@ -30,4 +30,4 @@ class NSMCCorpus(Dataset):
         return tokens2indices, label
 
 
-CORPUS_REGISTRY = {"nsmc": NSMCCorpus}
+CorpusRegistry = {"nsmc": NSMCCorpus}

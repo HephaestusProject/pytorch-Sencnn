@@ -7,22 +7,22 @@ from sklearn.model_selection import train_test_split
 
 
 def main(args):
-    conf_dir = Path("conf")
-    dconf_dir = conf_dir / "dataset"
+    config_dir = Path("conf")
+    dataset_config_dir = config_dir / "dataset"
     parent_dir = Path("dataset")
     child_dir = parent_dir / args.dataset
-    dconf_path = dconf_dir / f"{args.dataset}.yaml"
-    dconf = OmegaConf.load(dconf_path)
+    dataset_config_path = dataset_config_dir / f"{args.dataset}.yaml"
+    dataset_config = OmegaConf.load(dataset_config_path)
 
     # loading dataset
-    dataset = pd.read_csv(dconf.path.train, sep="\t").loc[
+    dataset = pd.read_csv(dataset_config.path.train, sep="\t").loc[
         :, ["document", "label"]
     ]
     dataset = dataset.loc[dataset["document"].isna().apply(lambda elm: not elm), :]
     train, validation = train_test_split(
         dataset, test_size=args.valid_ratio, random_state=args.seed
     )
-    test = pd.read_csv(dconf.path.test, sep="\t").loc[:, ["document", "label"]]
+    test = pd.read_csv(dataset_config.path.test, sep="\t").loc[:, ["document", "label"]]
     test = test.loc[test["document"].isna().apply(lambda elm: not elm), :]
 
     path_dict = {
@@ -31,12 +31,12 @@ def main(args):
         "test": str(child_dir / "test.txt")
     }
 
-    dconf.path.update(path_dict)
-    OmegaConf.save(dconf, dconf_path)
+    dataset_config.path.update(path_dict)
+    OmegaConf.save(dataset_config, dataset_config_path)
 
-    train.to_csv(dconf.path.train, sep="\t", index=False)
-    validation.to_csv(dconf.path.validation, sep="\t", index=False)
-    test.to_csv(dconf.path.test, sep="\t", index=False)
+    train.to_csv(dataset_config.path.train, sep="\t", index=False)
+    validation.to_csv(dataset_config.path.validation, sep="\t", index=False)
+    test.to_csv(dataset_config.path.test, sep="\t", index=False)
 
 
 if __name__ == "__main__":
