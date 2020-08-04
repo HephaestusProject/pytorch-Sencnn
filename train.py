@@ -92,5 +92,3 @@ if __name__ == "__main__":
     parser.add_argument("--runner", default="v0", type=str)
     args = parser.parse_args()
     main(args)
-
-

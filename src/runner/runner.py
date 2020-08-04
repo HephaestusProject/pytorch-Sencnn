@@ -66,13 +66,13 @@ class Runner(LightningModule):
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_n_correct_pred = torch.sum(y_mb == mb_labels_hat).item()
-        return {"test_loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
+        return {"loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
 
     def test_epoch_end(self, outputs):
         total_count = sum([x["n_pred"] for x in outputs])
         total_n_correct_pred = sum([x["n_correct_pred"] for x in outputs])
-        total_loss = torch.stack([x["test_loss"] * x["n_pred"] for x in outputs]).sum()
+        total_loss = torch.stack([x["loss"] * x["n_pred"] for x in outputs]).sum().item()
         test_loss = total_loss / total_count
         test_acc = total_n_correct_pred / total_count
-        return {"test_loss": test_loss, "test_acc": test_acc}
+        return {"loss": test_loss, "acc": test_acc}
 
