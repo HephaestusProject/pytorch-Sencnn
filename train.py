@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from omegaconf import OmegaConf, DictConfig
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import TensorBoardLogger, LightningLoggerBase
 from pytorch_lightning.callbacks import ModelCheckpoint, Callback
 from src.model.net import SenCNN
@@ -15,19 +15,19 @@ from src.utils.preprocessing import PreProcessor
 
 
 def get_config(args: Namespace) -> DictConfig:
-    conf_dir = Path("conf")
-    mconf_dir = conf_dir / "model"
-    dconf_dir = conf_dir / "dataset"
-    pconf_dir = conf_dir / "preprocessor"
-    rconf_dir = conf_dir / "runner"
+    config_dir = Path("conf")
+    model_config_dir = config_dir / "model"
+    dataset_config_dir = config_dir / "dataset"
+    preprocessor_config_dir = config_dir / "preprocessor"
+    runner_config_dir = config_dir / "runner"
 
-    conf = OmegaConf.create()
-    mconf = OmegaConf.load(mconf_dir / f"{args.model}.yaml")
-    dconf = OmegaConf.load(dconf_dir / f"{args.dataset}.yaml")
-    pconf = OmegaConf.load(pconf_dir / f"{args.preprocessor}.yaml")
-    rconf = OmegaConf.load(rconf_dir / f"{args.runner}.yaml")
-    conf.update(model=mconf, dataset=dconf, preprocessor=pconf, runner=rconf)
-    return conf
+    config = OmegaConf.create()
+    model_config = OmegaConf.load(model_config_dir / f"{args.model}.yaml")
+    dataset_config = OmegaConf.load(dataset_config_dir / f"{args.dataset}.yaml")
+    preprocessor_config = OmegaConf.load(preprocessor_config_dir / f"{args.preprocessor}.yaml")
+    runner_config = OmegaConf.load(runner_config_dir / f"{args.runner}.yaml")
+    config.update(model=model_config, dataset=dataset_config, preprocessor=preprocessor_config, runner=runner_config)
+    return config
 
 
 def get_logger_and_callbacks(args: Namespace) -> Tuple[LightningLoggerBase, Union[Callback, List[Callback]]]:
@@ -70,12 +70,17 @@ def get_data_loaders(dataset_config: DictConfig,
 
 
 def main(args) -> None:
+    if args.reproduce:
+        seed_everything(42)
+
     config = get_config(args)
     logger, checkpoint_callback = get_logger_and_callbacks(args)
 
     preprocessor = get_preprocessor(config.preprocessor)
     tr_dl, val_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)
     model = SenCNN(preprocessor.vocab, **config.model.params)
+
+
     runner = Runner(model, config.runner)
 
     trainer = Trainer(**config.runner.trainer.params,
@@ -90,5 +95,6 @@ if __name__ == "__main__":
     parser.add_argument("--model", default="sencnn", type=str)
     parser.add_argument("--preprocessor", default="mecab_10_32", type=str)
     parser.add_argument("--runner", default="v0", type=str)
+    parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
     main(args)

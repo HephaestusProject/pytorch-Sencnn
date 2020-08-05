@@ -43,6 +43,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="nsmc")
     parser.add_argument("--valid_ratio", type=float, default=0.2)
-    parser.add_argument("--seed", type=int, default=777)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     main(args)
