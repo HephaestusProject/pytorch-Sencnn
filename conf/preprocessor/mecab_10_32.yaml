@@ -1,7 +1,6 @@
-# @package _group_
-name: mecab_10_32
+type: mecab_10_32
 params:
   tokenizer: mecab
   min_freq: 10
   max_len: 32
-path: /home/kbs/Documents/archive/pytorch-Sencnn/preprocessor/mecab_10_32/preprocessor.pkl
+path: preprocessor/mecab_10_32/preprocessor.pkl

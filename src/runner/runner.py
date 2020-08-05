@@ -1,57 +1,29 @@
-import pickle
 import torch
 import torch.nn as nn
 
-from torch import optim
-from torch.utils.data import DataLoader
-from pytorch_lightning.core import LightningModule
 from omegaconf import DictConfig
-from .data import CORPUS_FACTORY
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from pytorch_lightning.core import LightningModule
 from .metric import cross_entropy
 
 
 class Runner(LightningModule):
-    def __init__(self, model: nn.Module, dconf: DictConfig, pconf: DictConfig, rconf: DictConfig):
+    def __init__(self, model: nn.Module, runner_config: DictConfig):
         super().__init__()
-        self._model = model
-        self._dconf = dconf
-        self._pconf = pconf
-        self.hparams = rconf
+        self.model = model
+        self.hparams.update(runner_config.dataloader.params)
+        self.hparams.update(runner_config.optimizer.params)
+        self.hparams.update(runner_config.scheduler.params)
+        self.hparams.update(runner_config.trainer.params)
 
     def forward(self, x):
-        return self._model(x)
-
-    def prepare_data(self) -> None:
-        with open(self._pconf.path, mode="rb") as io:
-            preprocessor = pickle.load(io)
-        corpus = CORPUS_FACTORY[self._dconf.name]
-        self._train_ds = corpus(self._dconf.path.train, preprocessor.encode)
-        self._valid_ds = corpus(self._dconf.path.validation, preprocessor.encode)
-        self._test_ds = corpus(self._dconf.path.test, preprocessor.encode)
-
-    def train_dataloader(self):
-        return DataLoader(self._train_ds,
-                          batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_workers,
-                          drop_last=True)
-
-    def val_dataloader(self):
-        return DataLoader(self._valid_ds,
-                          batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_workers,
-                          drop_last=False,
-                          shuffle=False)
-
-    def test_dataloader(self):
-        return DataLoader(self._test_ds,
-                          batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.num_workers,
-                          drop_last=False,
-                          shuffle=False)
+        return self.model(x)
 
     def configure_optimizers(self):
-        opt = optim.Adam(params=self._model.parameters(), lr=self.hparams.learning_rate)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=self.hparams.patience)
+        opt = Adam(params=self.model.parameters(),
+                   lr=self.hparams.learning_rate)
+        scheduler = ReduceLROnPlateau(opt, patience=self.hparams.patience)
         return [opt], [scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -94,12 +66,13 @@ class Runner(LightningModule):
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_n_correct_pred = torch.sum(y_mb == mb_labels_hat).item()
-        return {"test_loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
+        return {"loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
 
     def test_epoch_end(self, outputs):
         total_count = sum([x["n_pred"] for x in outputs])
         total_n_correct_pred = sum([x["n_correct_pred"] for x in outputs])
-        total_loss = torch.stack([x["test_loss"] * x["n_pred"] for x in outputs]).sum()
+        total_loss = torch.stack([x["loss"] * x["n_pred"] for x in outputs]).sum().item()
         test_loss = total_loss / total_count
         test_acc = total_n_correct_pred / total_count
-        return {"test_loss": test_loss, "test_acc": test_acc}
+        return {"loss": test_loss, "acc": test_acc}
+
