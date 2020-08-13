@@ -9,7 +9,7 @@ import pandas as pd
 from omegaconf import OmegaConf
 
 from src.utils.preprocessing import PadSequence, PreProcessor
-from src.utils.tokenization import TOKENIZATION_FACTORY
+from src.utils.tokenization import TokenizationRegistry
 from src.utils.vocab import Vocab
 
 
@@ -29,7 +29,7 @@ def main(args):
     ]
 
     # extracting morph in sentences
-    tokenize_fn = TOKENIZATION_FACTORY[preprocessor_config.params.tokenizer]
+    tokenize_fn = TokenizationRegistry[preprocessor_config.params.tokenizer]
     list_of_tokens = train["document"].apply(tokenize_fn).tolist()
 
     # generating the vocab
@@ -42,7 +42,7 @@ def main(args):
     )
 
     # connecting SISG embedding with vocab
-    embedding_source = nlp.embedding.create("fasttext", source="wiki.ko")
+    embedding_source = nlp.embedding.create("fasttext", source="wiki.ko" if args.dataset == "nsmc" else "wiki.en")
     intermediate_vocab.set_embedding(embedding_source)
     embedding = intermediate_vocab.embedding.idx_to_vec.asnumpy()
 

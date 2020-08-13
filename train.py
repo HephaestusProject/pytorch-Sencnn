@@ -91,10 +91,10 @@ def main(args) -> None:
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--dataset", default="nsmc", type=str, )
+    parser.add_argument("--dataset", default="nsmc", type=str)
     parser.add_argument("--model", default="sencnn", type=str)
     parser.add_argument("--preprocessor", default="mecab_10_32", type=str)
-    parser.add_argument("--runner", default="v0", type=str)
+    parser.add_argument("--runner", default="nsmc_v0", type=str)
     parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
     main(args)

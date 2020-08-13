@@ -1,4 +1,4 @@
-type: v0
+type: sst2_v0
 dataloader:
   params:
     num_workers: 2

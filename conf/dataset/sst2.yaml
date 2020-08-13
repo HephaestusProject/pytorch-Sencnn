@@ -1,0 +1,5 @@
+type: sst2
+path:
+  train: dataset/sst2/train.txt
+  test: dataset/sst2/test.txt
+  validation: dataset/sst2/validation.txt
