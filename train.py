@@ -6,13 +6,12 @@ from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from omegaconf import OmegaConf, DictConfig
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.loggers import TensorBoardLogger, LightningLoggerBase
+from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, Callback
 from src.model.net import SenCNN
 from src.runner.runner import Runner
 from src.utils.corpus import CorpusRegistry
 from src.utils.preprocessing import PreProcessor
-from pprint import pprint
 
 
 def get_config(args: Namespace) -> DictConfig:
@@ -31,7 +30,7 @@ def get_config(args: Namespace) -> DictConfig:
     return config
 
 
-def get_logger_and_callbacks(args: Namespace) -> Tuple[LightningLoggerBase, Union[Callback, List[Callback]]]:
+def get_logger_and_callbacks(args: Namespace) -> Tuple[TensorBoardLogger, Union[Callback, List[Callback]]]:
     logger = TensorBoardLogger(save_dir="exp",
                                name=args.model,
                                version=args.runner)
@@ -55,7 +54,7 @@ def get_preprocessor(preprocessor_config: DictConfig) -> PreProcessor:
 
 def get_data_loaders(dataset_config: DictConfig,
                      dataloader_config: DictConfig,
-                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader]:
+                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader, DataLoader]:
     dataset = CorpusRegistry.get(dataset_config.type)
     tr_ds = dataset(dataset_config.path.train, preprocessor.encode)
     tr_dl = DataLoader(tr_ds,

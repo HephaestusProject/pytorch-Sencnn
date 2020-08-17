@@ -27,12 +27,12 @@ class Runner(LightningModule):
         scheduler = ExponentialLR(opt, gamma=self.hparams.gamma)
         return [opt], [scheduler]
 
-    # def on_after_backward(self) -> None:
-    #     with torch.no_grad():
-    #         norm = self.model._fc.weight.norm(p=2, dim=-1, keepdim=True)
-    #
-    #         if any(norm > self.hparams.scale_factor):
-    #             self.model._fc.weight.div_(norm).mul_(self.hparams.scale_factor)
+    def on_after_backward(self) -> None:
+        with torch.no_grad():
+            norm = self.model._fc.weight.norm(p=2, dim=-1, keepdim=True)
+
+            if any(norm > self.hparams.scale_factor):
+                self.model._fc.weight.div_(norm).mul_(self.hparams.scale_factor)
 
     def training_step(self, batch, batch_idx):
         x_mb, y_mb = batch

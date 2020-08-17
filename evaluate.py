@@ -38,7 +38,7 @@ def get_preprocessor(preprocessor_config: DictConfig) -> PreProcessor:
 
 def get_data_loaders(dataset_config: DictConfig,
                      dataloader_config: DictConfig,
-                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader]:
+                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader, DataLoader]:
     dataset = CorpusRegistry.get(dataset_config.type)
     tr_ds = dataset(dataset_config.path.train, preprocessor.encode)
     tr_dl = DataLoader(tr_ds,
@@ -102,10 +102,3 @@ if __name__ == "__main__":
     parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
     main(args)
-
-    args = Namespace(dataset="trec6",
-                     model="trec6_classifier",
-                     preprocessor="basic_2_32",
-                     runner="trec6_v0",
-                     checkpoint="epoch=09-avg_tr_loss=0.321-avg_tr_acc=0.872-avg_val_loss=0.373-avg_val_acc=0.872",
-                     reproduce=True)

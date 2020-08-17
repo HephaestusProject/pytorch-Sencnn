@@ -13,7 +13,7 @@ from src.utils.tokenization import TokenizationRegistry
 from src.utils.vocab import Vocab
 
 
-def main(args):
+def main(args) -> None:
     config_dir = Path("conf")
     dataset_config_dir = config_dir / "dataset"
     preprocessor_config_dir = config_dir / "preprocessor"

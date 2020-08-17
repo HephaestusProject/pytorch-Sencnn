@@ -54,4 +54,5 @@ class TREC6Corpus(Dataset):
         label = torch.tensor(self._corpus.iloc[idx]["label"])
         return tokens2indices, label
 
+
 CorpusRegistry = {"nsmc": NSMCCorpus, "trec6": TREC6Corpus}

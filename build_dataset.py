@@ -6,7 +6,7 @@ from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 
 
-def create_dataset(filepath):
+def create_dataset(filepath: Path) -> pd.DataFrame:
     with open(filepath, mode="rb") as io:
         list_of_sentences = io.readlines()
         data = []
@@ -23,7 +23,7 @@ def create_dataset(filepath):
     return pd.DataFrame(data)
 
 
-def main(args):
+def main(args) -> None:
     config_dir = Path("conf")
     dataset_config_dir = config_dir / "dataset"
     parent_dir = Path("dataset")

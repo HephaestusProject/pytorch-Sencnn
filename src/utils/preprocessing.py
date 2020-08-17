@@ -38,7 +38,7 @@ class PreProcessor:
         return list_of_indices
 
     @property
-    def vocab(self):
+    def vocab(self)-> Vocab:
         return self._vocab
 
 
@@ -58,7 +58,7 @@ class PadSequence:
         self._pad_val = pad_val
         self._clip = clip
 
-    def __call__(self, sample):
+    def __call__(self, sample) -> List[int]:
         sample_length = len(sample)
         if sample_length >= self._length:
             if self._clip and sample_length > self._length:
