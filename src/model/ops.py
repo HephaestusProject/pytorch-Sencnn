@@ -16,12 +16,12 @@ class MultiChannelEmbedding(nn.Module):
         """
         super(MultiChannelEmbedding, self).__init__()
         self._static = nn.Embedding.from_pretrained(
-            torch.from_numpy(vocab.embedding),
+            torch.from_numpy(vocab.embedding.copy()),
             freeze=True,
             padding_idx=vocab.to_indices(vocab.pad_token),
         )
         self._non_static = nn.Embedding.from_pretrained(
-            torch.from_numpy(vocab.embedding),
+            torch.from_numpy(vocab.embedding.copy()),
             freeze=False,
             padding_idx=vocab.to_indices(vocab.pad_token),
         )

@@ -30,8 +30,8 @@ class NSMCCorpus(Dataset):
         return tokens2indices, label
 
 
-class SST2Corpus(Dataset):
-    """SST2Corpus class"""
+class TREC6Corpus(Dataset):
+    """TREC6Corpus class"""
 
     def __init__(self, filepath: str, encode_fn: Callable[[str], List[int]]) -> None:
         """Instantiating SST2Corpus class
@@ -54,4 +54,4 @@ class SST2Corpus(Dataset):
         label = torch.tensor(self._corpus.iloc[idx]["label"])
         return tokens2indices, label
 
-CorpusRegistry = {"nsmc": NSMCCorpus, "sst2": SST2Corpus}
+CorpusRegistry = {"nsmc": NSMCCorpus, "trec6": TREC6Corpus}

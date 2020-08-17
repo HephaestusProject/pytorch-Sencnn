@@ -1,0 +1,9 @@
+batch_size: 256
+benchmark: false
+deterministic: true
+distributed_backend: dp
+gamma: 0.95
+gpus: 1
+learning_rate: 0.001
+max_epochs: 10
+num_workers: 4

@@ -12,6 +12,7 @@ from src.model.net import SenCNN
 from src.runner.runner import Runner
 from src.utils.corpus import CorpusRegistry
 from src.utils.preprocessing import PreProcessor
+from pprint import pprint
 
 
 def get_config(args: Namespace) -> DictConfig:
@@ -36,11 +37,13 @@ def get_logger_and_callbacks(args: Namespace) -> Tuple[LightningLoggerBase, Unio
                                version=args.runner)
 
     prefix = f"exp/{args.model}/{args.runner}/"
-    suffix = "{epoch:02d}-{tr_loss:.2f}-{val_loss:.2f}-{tr_acc:.2f}-{val_acc:.2f}"
+    suffix = "{epoch:02d}-{avg_tr_loss:.4f}-{avg_tr_acc:.4f}-{avg_val_loss:.4f}-{avg_val_acc:.4f}"
     filepath = prefix + suffix
     checkpoint_callback = ModelCheckpoint(filepath=filepath,
-                                          save_top_k=2,
-                                          save_weights_only=True)
+                                          save_top_k=1,
+                                          monitor="avg_val_acc",
+                                          save_weights_only=True,
+                                          verbose=True)
     return logger, checkpoint_callback
 
 
@@ -79,8 +82,6 @@ def main(args) -> None:
     preprocessor = get_preprocessor(config.preprocessor)
     tr_dl, val_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)
     model = SenCNN(preprocessor.vocab, **config.model.params)
-
-
     runner = Runner(model, config.runner)
 
     trainer = Trainer(**config.runner.trainer.params,
@@ -92,8 +93,8 @@ def main(args) -> None:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--dataset", default="nsmc", type=str)
-    parser.add_argument("--model", default="sencnn", type=str)
-    parser.add_argument("--preprocessor", default="mecab_10_32", type=str)
+    parser.add_argument("--model", default="nsmc_classifier", type=str)
+    parser.add_argument("--preprocessor", default="mecab_5_32", type=str)
     parser.add_argument("--runner", default="nsmc_v0", type=str)
     parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()

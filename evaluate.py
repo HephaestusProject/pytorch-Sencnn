@@ -68,6 +68,7 @@ def main(args) -> None:
 
     config = get_config(args)
     preprocessor = get_preprocessor(config.preprocessor)
+    preprocessor.vocab.embedding
     tr_dl, val_dl, tst_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)
 
     # restore runner
@@ -79,7 +80,10 @@ def main(args) -> None:
     runner.load_state_dict(state_dict.get("state_dict"))
 
     results = {}
-    trainer = Trainer(gpus=1, logger=None, checkpoint_callback=None)
+    trainer = Trainer(**config.runner.trainer.params,
+                      logger=None,
+                      checkpoint_callback=None)
+    trainer.callback_metrics
     tr_result = trainer.test(runner, test_dataloaders=tr_dl)
     val_result = trainer.test(runner, test_dataloaders=val_dl)
     tst_result = trainer.test(runner, test_dataloaders=tst_dl)
@@ -92,10 +96,17 @@ def main(args) -> None:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--dataset", default="nsmc", type=str, )
-    parser.add_argument("--model", default="sencnn", type=str)
-    parser.add_argument("--preprocessor", default="mecab_10_32", type=str)
+    parser.add_argument("--model", default="nsmc_classifier", type=str)
+    parser.add_argument("--preprocessor", default="mecab_5_32", type=str)
     parser.add_argument("--runner", default="nsmc_v0", type=str)
     parser.add_argument("--checkpoint", type=str, required=True)
     parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
     main(args)
+
+    args = Namespace(dataset="trec6",
+                     model="trec6_classifier",
+                     preprocessor="basic_2_32",
+                     runner="trec6_v0",
+                     checkpoint="epoch=09-avg_tr_loss=0.321-avg_tr_acc=0.872-avg_val_loss=0.373-avg_val_acc=0.872",
+                     reproduce=True)
