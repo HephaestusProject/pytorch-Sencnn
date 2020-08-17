@@ -1,6 +1,0 @@
-type: mecab_10_32
-params:
-  tokenizer: mecab
-  min_freq: 10
-  max_len: 32
-path: preprocessor/mecab_10_32/preprocessor.pkl

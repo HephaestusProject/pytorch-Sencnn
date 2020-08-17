@@ -1,19 +1,19 @@
 import argparse
 import itertools
 import pickle
-from collections import Counter
-from pathlib import Path
-
 import gluonnlp as nlp
 import pandas as pd
-from omegaconf import OmegaConf
+import numpy as np
 
+from collections import Counter
+from pathlib import Path
+from omegaconf import OmegaConf
 from src.utils.preprocessing import PadSequence, PreProcessor
-from src.utils.tokenization import TOKENIZATION_FACTORY
+from src.utils.tokenization import TokenizationRegistry
 from src.utils.vocab import Vocab
 
 
-def main(args):
+def main(args) -> None:
     config_dir = Path("conf")
     dataset_config_dir = config_dir / "dataset"
     preprocessor_config_dir = config_dir / "preprocessor"
@@ -29,7 +29,7 @@ def main(args):
     ]
 
     # extracting morph in sentences
-    tokenize_fn = TOKENIZATION_FACTORY[preprocessor_config.params.tokenizer]
+    tokenize_fn = TokenizationRegistry[preprocessor_config.params.tokenizer]
     list_of_tokens = train["document"].apply(tokenize_fn).tolist()
 
     # generating the vocab
@@ -42,9 +42,24 @@ def main(args):
     )
 
     # connecting SISG embedding with vocab
-    embedding_source = nlp.embedding.create("fasttext", source="wiki.ko")
+    embedding_source = nlp.embedding.create(preprocessor_config.params.embedding_name,
+                                            source=preprocessor_config.params.embedding_source)
+
     intermediate_vocab.set_embedding(embedding_source)
     embedding = intermediate_vocab.embedding.idx_to_vec.asnumpy()
+
+    # init vector
+    zero_vector_indices = np.delete(np.where(embedding.sum(axis=-1) == 0)[0],
+                                  [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
+                                   intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
+    non_zero_vector_indices = np.delete(np.arange(0, len(intermediate_vocab)),
+                              np.append(zero_vector_indices,
+                                        [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
+                                         intermediate_vocab.to_indices(intermediate_vocab.padding_token)]))
+    vars_of_dim = np.var(embedding[non_zero_vector_indices], axis=0)
+
+    initialized_vectors = np.random.uniform(-vars_of_dim, vars_of_dim, size=embedding[zero_vector_indices].shape)
+    embedding[zero_vector_indices] = initialized_vectors
 
     vocab = Vocab(
         intermediate_vocab.idx_to_token,
@@ -79,6 +94,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="nsmc")
-    parser.add_argument("--preprocessor", type=str, default="mecab_10_32")
+    parser.add_argument("--preprocessor", type=str, default="mecab_5_32")
     args = parser.parse_args()
     main(args)

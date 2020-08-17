@@ -1,0 +1,19 @@
+type: trec6_v0
+dataloader:
+  params:
+    num_workers: 4
+    batch_size: 256
+optimizer:
+  params:
+    learning_rate: 1e-3
+    scale_factor: 3
+scheduler:
+  params:
+    gamma: 0.95
+trainer:
+  params:
+    max_epochs: 10
+    gpus: 1
+    distributed_backend: dp
+    benchmark: False
+    deterministic: True

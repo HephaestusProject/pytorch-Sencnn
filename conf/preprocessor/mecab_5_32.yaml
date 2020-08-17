@@ -1,0 +1,8 @@
+type: mecab_5_32
+params:
+  tokenizer: mecab
+  min_freq: 5
+  max_len: 32
+  embedding_name: fasttext
+  embedding_source: wiki.ko
+path: preprocessor/mecab_5_32/preprocessor.pkl

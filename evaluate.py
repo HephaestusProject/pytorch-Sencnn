@@ -38,7 +38,7 @@ def get_preprocessor(preprocessor_config: DictConfig) -> PreProcessor:
 
 def get_data_loaders(dataset_config: DictConfig,
                      dataloader_config: DictConfig,
-                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader]:
+                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader, DataLoader]:
     dataset = CorpusRegistry.get(dataset_config.type)
     tr_ds = dataset(dataset_config.path.train, preprocessor.encode)
     tr_dl = DataLoader(tr_ds,
@@ -79,7 +79,10 @@ def main(args) -> None:
     runner.load_state_dict(state_dict.get("state_dict"))
 
     results = {}
-    trainer = Trainer(gpus=1, logger=None, checkpoint_callback=None)
+    trainer = Trainer(**config.runner.trainer.params,
+                      logger=None,
+                      checkpoint_callback=None)
+    trainer.callback_metrics
     tr_result = trainer.test(runner, test_dataloaders=tr_dl)
     val_result = trainer.test(runner, test_dataloaders=val_dl)
     tst_result = trainer.test(runner, test_dataloaders=tst_dl)
@@ -92,9 +95,9 @@ def main(args) -> None:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--dataset", default="nsmc", type=str, )
-    parser.add_argument("--model", default="sencnn", type=str)
-    parser.add_argument("--preprocessor", default="mecab_10_32", type=str)
-    parser.add_argument("--runner", default="v0", type=str)
+    parser.add_argument("--model", default="nsmc_classifier", type=str)
+    parser.add_argument("--preprocessor", default="mecab_5_32", type=str)
+    parser.add_argument("--runner", default="nsmc_v0", type=str)
     parser.add_argument("--checkpoint", type=str, required=True)
     parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
