@@ -68,7 +68,6 @@ def main(args) -> None:
 
     config = get_config(args)
     preprocessor = get_preprocessor(config.preprocessor)
-    preprocessor.vocab.embedding
     tr_dl, val_dl, tst_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)
 
     # restore runner
