@@ -1,12 +1,12 @@
 import pickle
 
-from typing import Union, Tuple, Sequence
+from typing import Union, Tuple, List
 from torch.utils.data import DataLoader
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from omegaconf import OmegaConf, DictConfig
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
+from pytorch_lightning.loggers import TensorBoardLogger, LightningLoggerBase
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from src.model.net import SenCNN
 from src.runner.runner import Runner
@@ -30,14 +30,14 @@ def get_config(args: Namespace) -> DictConfig:
     return config
 
 
-def get_loggers(args: Namespace) -> Union[LightningLoggerBase, Sequence[LightningLoggerBase]]:
+def get_loggers(args: Namespace) -> Union[LightningLoggerBase, List[LightningLoggerBase]]:
     logger = TensorBoardLogger(save_dir="exp",
                                name=args.model,
                                version=args.runner)
     return logger
 
 
-def get_callbacks(args: Namespace) -> Union[ModelCheckpoint, Union[Sequence[ModelCheckpoint, Callback]]]:
+def get_callbacks(args: Namespace) -> Union[ModelCheckpoint, Tuple[ModelCheckpoint, List[Callback]]]:
     prefix = f"exp/{args.model}/{args.runner}/"
     suffix = "{epoch:02d}-{val_acc:.4f}"
     filepath = prefix + suffix

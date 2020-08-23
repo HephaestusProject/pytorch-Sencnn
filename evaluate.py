@@ -63,9 +63,7 @@ def get_data_loaders(dataset_config: DictConfig,
 
 
 def main(args) -> None:
-    if args.reproduce:
-        seed_everything(42)
-
+    seed_everything(42)
     config = get_config(args)
     preprocessor = get_preprocessor(config.preprocessor)
     tr_dl, val_dl, tst_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)
@@ -99,6 +97,5 @@ if __name__ == "__main__":
     parser.add_argument("--preprocessor", default="mecab_5_32", type=str)
     parser.add_argument("--runner", default="nsmc_v0", type=str)
     parser.add_argument("--checkpoint", type=str, required=True)
-    parser.add_argument("--reproduce", default=False, action="store_true")
     args = parser.parse_args()
     main(args)
