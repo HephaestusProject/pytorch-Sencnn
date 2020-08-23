@@ -80,9 +80,9 @@ def main(args) -> None:
 
     results = {}
     trainer = Trainer(**config.runner.trainer.params,
-                      logger=None,
-                      checkpoint_callback=None)
-    trainer.callback_metrics
+                      logger=False,
+                      checkpoint_callback=False)
+
     tr_result = trainer.test(runner, test_dataloaders=tr_dl)
     val_result = trainer.test(runner, test_dataloaders=val_dl)
     tst_result = trainer.test(runner, test_dataloaders=tst_dl)

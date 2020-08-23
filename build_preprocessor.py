@@ -5,6 +5,7 @@ import gluonnlp as nlp
 import pandas as pd
 import numpy as np
 
+from argparse import Namespace
 from collections import Counter
 from pathlib import Path
 from omegaconf import OmegaConf
@@ -13,7 +14,7 @@ from src.utils.tokenization import TokenizationRegistry
 from src.utils.vocab import Vocab
 
 
-def main(args) -> None:
+def main(args: Namespace) -> None:
     config_dir = Path("conf")
     dataset_config_dir = config_dir / "dataset"
     preprocessor_config_dir = config_dir / "preprocessor"
@@ -50,8 +51,8 @@ def main(args) -> None:
 
     # init vector
     zero_vector_indices = np.delete(np.where(embedding.sum(axis=-1) == 0)[0],
-                                  [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
-                                   intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
+                                    [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
+                                    intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
     non_zero_vector_indices = np.delete(np.arange(0, len(intermediate_vocab)),
                               np.append(zero_vector_indices,
                                         [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),

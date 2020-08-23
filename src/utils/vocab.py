@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 
 class Vocab:
@@ -7,15 +7,15 @@ class Vocab:
     def __init__(
         self,
         list_of_tokens: List[str] = None,
-        pad_token: str = "<pad>",
-        unk_token: str = "<unk>",
-        bos_token: str = "<bos>",
-        eos_token: str = "<eos>",
-        cls_token: str = "<cls>",
-        sep_token: str = "<sep>",
-        mask_token: str = "<mask>",
-        reserved_tokens: List[str] = None,
-        token_to_idx: Dict[str, int] = None,
+        pad_token: Optional[str] = "<pad>",
+        unk_token: Optional[str] = "<unk>",
+        bos_token: Optional[str] = "<bos>",
+        eos_token: Optional[str] = "<eos>",
+        cls_token: Optional[str] = "<cls>",
+        sep_token: Optional[str] = "<sep>",
+        mask_token: Optional[str] = "<mask>",
+        reserved_tokens: Optional[List[str]] = None,
+        token_to_idx: Optional[Dict[str, int]] = None,
     ):
         """Instantiating Vocab class
         Args:

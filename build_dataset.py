@@ -1,7 +1,8 @@
 import argparse
-from pathlib import Path
-
 import pandas as pd
+
+from argparse import Namespace
+from pathlib import Path
 from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 
@@ -23,7 +24,7 @@ def create_dataset(filepath: Path) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def main(args) -> None:
+def main(args: Namespace) -> None:
     config_dir = Path("conf")
     dataset_config_dir = config_dir / "dataset"
     parent_dir = Path("dataset")
