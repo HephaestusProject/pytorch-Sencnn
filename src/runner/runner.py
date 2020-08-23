@@ -4,8 +4,8 @@ import torch.nn as nn
 from omegaconf import DictConfig
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
-from pytorch_lightning.core import LightningModule
-from .metric import cross_entropy
+from pytorch_lightning import LightningModule, EvalResult, TrainResult
+from .metric import cross_entropy, acc
 
 
 class Runner(LightningModule):
@@ -36,51 +36,35 @@ class Runner(LightningModule):
 
     def training_step(self, batch, batch_idx):
         x_mb, y_mb = batch
-        y_hat_mb = self(x_mb)
+        y_hat_mb = self.model(x_mb)
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
-        mb_acc = (y_mb == mb_labels_hat).float().mean()
-        log = {"loss_per_step": mb_loss.unsqueeze(0), "acc_per_step": mb_acc.unsqueeze(0)}
-        return {"loss": mb_loss, "log": log}
-
-    def training_epoch_end(self, outputs):
-        avg_tr_loss = torch.stack([x["log"]["loss_per_step"] for x in outputs]).mean()
-        avg_tr_acc = torch.stack([x["log"]["acc_per_step"] for x in outputs]).mean()
-        tqdm_dict = {"avg_tr_loss": avg_tr_loss, "avg_tr_acc": avg_tr_acc}
-        log = {"avg_tr_loss": avg_tr_loss, "avg_tr_acc": avg_tr_acc}
-        return {"progress_bar": tqdm_dict, "log": log}
+        mb_acc = acc(mb_labels_hat, y_mb)
+        result = TrainResult(minimize=mb_loss)
+        result.log_dict({"tr_loss": mb_loss, "tr_acc": mb_acc},
+                        prog_bar=True,
+                        logger=True,
+                        on_epoch=True,
+                        on_step=False,
+                        sync_dist=True)
+        return result
 
     def validation_step(self, batch, batch_idx):
         x_mb, y_mb = batch
-        y_hat_mb = self(x_mb)
+        y_hat_mb = self.model(x_mb)
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
-        mb_n_correct_pred = torch.sum(y_mb == mb_labels_hat).item()
-        return {"loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
-
-    def validation_epoch_end(self, outputs):
-        total_count = sum([x["n_pred"] for x in outputs])
-        total_n_correct_pred = sum([x["n_correct_pred"] for x in outputs])
-        total_loss = torch.stack([x["loss"] * x["n_pred"] for x in outputs]).sum()
-        avg_val_loss = total_loss / total_count
-        avg_val_acc = torch.tensor(total_n_correct_pred / total_count)
-        tqdm_dict = {"avg_val_loss": avg_val_loss, "avg_val_acc": avg_val_acc}
-        log = {"avg_val_loss": avg_val_loss, "avg_tr_acc": avg_val_acc}
-        return {"progress_bar": tqdm_dict, "log": log}
+        mb_acc = acc(mb_labels_hat, y_mb)
+        result = EvalResult(checkpoint_on=mb_loss)
+        result.log_dict({"val_loss": mb_loss, "val_acc": mb_acc},
+                        prog_bar=True,
+                        logger=True,
+                        on_step=False,
+                        on_epoch=True,
+                        sync_dist=True)
+        return result
 
     def test_step(self, batch, batch_idx):
-        x_mb, y_mb = batch
-        y_hat_mb = self(x_mb)
-        mb_loss = cross_entropy(y_hat_mb, y_mb)
-        mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
-        mb_n_correct_pred = torch.sum(y_mb == mb_labels_hat).item()
-        return {"loss": mb_loss, "n_correct_pred": mb_n_correct_pred, "n_pred": len(x_mb)}
-
-    def test_epoch_end(self, outputs):
-        total_count = sum([x["n_pred"] for x in outputs])
-        total_n_correct_pred = sum([x["n_correct_pred"] for x in outputs])
-        total_loss = torch.stack([x["loss"] * x["n_pred"] for x in outputs]).sum().item()
-        avg_test_loss = total_loss / total_count
-        avg_test_acc = total_n_correct_pred / total_count
-        return {"loss": avg_test_loss, "acc": avg_test_acc}
-
+        result = self.validation_step(batch, batch_idx)
+        result.rename_keys({"val_loss": "loss", "val_acc": "acc"})
+        return result

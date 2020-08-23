@@ -13,7 +13,7 @@ scheduler:
 trainer:
   params:
     max_epochs: 5
-    gpus: 1
-    distributed_backend: dp
+    gpus: 2
+    distributed_backend: ddp
     benchmark: False
     deterministic: True
