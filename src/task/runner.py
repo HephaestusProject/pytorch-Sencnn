@@ -8,11 +8,10 @@ from pytorch_lightning import LightningModule, EvalResult, TrainResult
 from .metric import cross_entropy, acc
 
 
-class Runner(LightningModule):
+class ClassificationTaskRunner(LightningModule):
     def __init__(self, model: nn.Module, runner_config: DictConfig):
         super().__init__()
         self.model = model
-        self.hparams.update(runner_config.dataloader.params)
         self.hparams.update(runner_config.optimizer.params)
         self.hparams.update(runner_config.scheduler.params)
         self.hparams.update(runner_config.trainer.params)
@@ -21,7 +20,6 @@ class Runner(LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-
         opt = Adam(params=self.model.parameters(),
                    lr=self.hparams.learning_rate)
         scheduler = ExponentialLR(opt, gamma=self.hparams.gamma)

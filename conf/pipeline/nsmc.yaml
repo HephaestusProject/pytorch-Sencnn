@@ -1,0 +1,11 @@
+type: nsmc
+dataset:
+  type: nsmc
+  path:
+    train: dataset/nsmc/train.txt
+    test: dataset/nsmc/test.txt
+    validation: dataset/nsmc/validation.txt
+dataloader:
+  params:
+    num_workers: 4
+    batch_size: 256

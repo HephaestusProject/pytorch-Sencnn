@@ -9,7 +9,7 @@ from argparse import ArgumentParser, Namespace
 from omegaconf import OmegaConf, DictConfig
 from pytorch_lightning import Trainer, seed_everything
 from src.model.net import SenCNN
-from src.runner.runner import Runner
+from src.runner.task import ClassificationTask
 from src.utils.corpus import CorpusRegistry
 from src.utils.preprocessing import PreProcessor
 
@@ -70,7 +70,7 @@ def main(args) -> None:
 
     # restore runner
     model = SenCNN(preprocessor.vocab, **config.model.params)
-    runner = Runner(model, config.runner)
+    runner = ClassificationTask(model, config.runner)
 
     checkpoint_path = f"exp/{args.model}/{args.runner}/{args.checkpoint}.ckpt"
     state_dict = torch.load(checkpoint_path)
