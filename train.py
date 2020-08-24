@@ -1,13 +1,13 @@
 import pickle
 
-from typing import Tuple, Union, List
+from typing import Union, Tuple, List
 from torch.utils.data import DataLoader
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from omegaconf import OmegaConf, DictConfig
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_lightning.callbacks import ModelCheckpoint, Callback
+from pytorch_lightning.loggers import TensorBoardLogger, LightningLoggerBase
+from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from src.model.net import SenCNN
 from src.runner.runner import Runner
 from src.utils.corpus import CorpusRegistry
@@ -30,20 +30,23 @@ def get_config(args: Namespace) -> DictConfig:
     return config
 
 
-def get_logger_and_callbacks(args: Namespace) -> Tuple[TensorBoardLogger, Union[Callback, List[Callback]]]:
+def get_loggers(args: Namespace) -> Union[LightningLoggerBase, List[LightningLoggerBase]]:
     logger = TensorBoardLogger(save_dir="exp",
                                name=args.model,
                                version=args.runner)
+    return logger
 
+
+def get_callbacks(args: Namespace) -> Union[ModelCheckpoint, Tuple[ModelCheckpoint, List[Callback]]]:
     prefix = f"exp/{args.model}/{args.runner}/"
-    suffix = "{epoch:02d}-{avg_tr_loss:.4f}-{avg_tr_acc:.4f}-{avg_val_loss:.4f}-{avg_val_acc:.4f}"
+    suffix = "{epoch:02d}-{val_acc:.4f}"
     filepath = prefix + suffix
     checkpoint_callback = ModelCheckpoint(filepath=filepath,
                                           save_top_k=1,
-                                          monitor="avg_val_acc",
+                                          monitor="val_loss",
                                           save_weights_only=True,
                                           verbose=True)
-    return logger, checkpoint_callback
+    return checkpoint_callback
 
 
 def get_preprocessor(preprocessor_config: DictConfig) -> PreProcessor:
@@ -54,7 +57,7 @@ def get_preprocessor(preprocessor_config: DictConfig) -> PreProcessor:
 
 def get_data_loaders(dataset_config: DictConfig,
                      dataloader_config: DictConfig,
-                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader, DataLoader]:
+                     preprocessor: PreProcessor) -> Tuple[DataLoader, DataLoader]:
     dataset = CorpusRegistry.get(dataset_config.type)
     tr_ds = dataset(dataset_config.path.train, preprocessor.encode)
     tr_dl = DataLoader(tr_ds,
@@ -76,7 +79,8 @@ def main(args) -> None:
         seed_everything(42)
 
     config = get_config(args)
-    logger, checkpoint_callback = get_logger_and_callbacks(args)
+    logger = get_loggers(args)
+    checkpoint_callback = get_callbacks(args)
 
     preprocessor = get_preprocessor(config.preprocessor)
     tr_dl, val_dl = get_data_loaders(config.dataset, config.runner.dataloader, preprocessor)

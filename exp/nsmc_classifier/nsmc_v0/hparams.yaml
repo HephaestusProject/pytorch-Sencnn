@@ -3,7 +3,7 @@ benchmark: false
 deterministic: true
 distributed_backend: dp
 gamma: 0.95
-gpus: 1
+gpus: 2
 learning_rate: 0.001
 max_epochs: 5
 num_workers: 4
