@@ -1,0 +1,5 @@
+version: sencnn
+type: SenCNN
+params:
+  num_classes: 2
+  dropout_rate: .5

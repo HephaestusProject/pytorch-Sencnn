@@ -1,13 +1,16 @@
-type: nsmc
-version: v00
+version: rv00
+type: ClassificationTaskRunner
 optimizer:
+  type: Adam
   params:
     learning_rate: 1e-3
     scale_factor: 3
 scheduler:
+  type: ExponentialLR
   params:
     gamma: 0.95
 trainer:
+  type: Trainer
   params:
     max_epochs: 5
     gpus: 2

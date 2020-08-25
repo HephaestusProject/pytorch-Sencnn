@@ -1,9 +1,0 @@
-type: trec6
-path:
-  train: dataset/trec6/train.txt
-  test: dataset/trec6/test.txt
-  validation: dataset/trec6/validation.txt
-dataloader:
-  params:
-    num_workers: 4
-    batch_size: 256

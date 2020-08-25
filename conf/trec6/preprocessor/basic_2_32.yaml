@@ -1,4 +1,5 @@
-type: basic_2_32
+version: basic_2_32
+type: PreProcessor
 params:
   tokenizer: basic
   min_freq: 2

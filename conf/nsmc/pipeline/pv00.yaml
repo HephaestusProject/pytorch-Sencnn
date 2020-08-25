@@ -1,11 +1,13 @@
-type: nsmc
+version: pv00
+type: DataPipeLine
 dataset:
-  type: nsmc
+  type: NSMCCorpus
   path:
     train: dataset/nsmc/train.txt
     test: dataset/nsmc/test.txt
     validation: dataset/nsmc/validation.txt
 dataloader:
+  type: DataLoader
   params:
-    num_workers: 4
     batch_size: 256
+    num_workers: 4
