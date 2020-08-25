@@ -16,35 +16,40 @@ from src.utils.vocab import Vocab
 
 def main(args: Namespace) -> None:
     config_dir = Path("conf")
-    dataset_config_dir = config_dir / "dataset"
-    preprocessor_config_dir = config_dir / "preprocessor"
-    dataset_config = OmegaConf.load(dataset_config_dir / f"{args.dataset}.yaml")
-    preprocessor_config_path = preprocessor_config_dir / f"{args.preprocessor}.yaml"
-    preprocessor_config = OmegaConf.load(preprocessor_config_path)
 
-    parent_dir = Path("preprocessor")
-    child_dir = parent_dir / args.preprocessor
+    task_config_dir = config_dir / args.task
+    task_pipeline_config_dir = task_config_dir / "pipeline"
+    task_preprocessor_config_dir = task_config_dir / "preprocessor"
+
+    task_pipeline_config_path = task_pipeline_config_dir /  f"{args.pipeline}.yaml"
+    task_pipeline_config = OmegaConf.load(task_pipeline_config_path)
+
+    # task_pipeline_config = OmegaConf.load(task_dataset_dir / f"{args.task}.yaml")
+    task_preprocessor_config_path = task_preprocessor_config_dir / f"{args.preprocessor}.yaml"
+    task_preprocessor_config = OmegaConf.load(task_preprocessor_config_path)
+
+
     # loading dataset
-    train = pd.read_csv(dataset_config.path.train, sep="\t").loc[
+    train = pd.read_csv(task_pipeline_config.dataset.path.train, sep="\t").loc[
         :, ["document", "label"]
     ]
 
     # extracting morph in sentences
-    tokenize_fn = TokenizationRegistry[preprocessor_config.params.tokenizer]
+    tokenize_fn = TokenizationRegistry[task_preprocessor_config.params.tokenizer]
     list_of_tokens = train["document"].apply(tokenize_fn).tolist()
 
     # generating the vocab
     token_counter = Counter(itertools.chain.from_iterable(list_of_tokens))
     intermediate_vocab = nlp.Vocab(
         counter=token_counter,
-        min_freq=preprocessor_config.params.min_freq,
+        min_freq=task_preprocessor_config.params.min_freq,
         bos_token=None,
         eos_token=None,
     )
 
     # connecting SISG embedding with vocab
-    embedding_source = nlp.embedding.create(preprocessor_config.params.embedding_name,
-                                            source=preprocessor_config.params.embedding_source)
+    embedding_source = nlp.embedding.create(task_preprocessor_config.params.embedding_name,
+                                            source=task_preprocessor_config.params.embedding_source)
 
     intermediate_vocab.set_embedding(embedding_source)
     embedding = intermediate_vocab.embedding.idx_to_vec.asnumpy()
@@ -77,24 +82,29 @@ def main(args: Namespace) -> None:
     preprocessor = PreProcessor(
         vocab,
         tokenize_fn=tokenize_fn,
-        pad_fn=PadSequence(length=preprocessor_config.params.max_len, pad_val=vocab.pad_token),
+        pad_fn=PadSequence(length=task_preprocessor_config.params.max_len, pad_val=vocab.pad_token),
     )
 
+
     # saving vocab
-    if not child_dir.exists():
-        child_dir.mkdir(parents=True)
+    preprocessor_dir = Path("preprocessor")
+    task_preprocessor_dir = preprocessor_dir / args.task / args.preprocessor
 
-    path_dict = {"path": str(child_dir / "preprocessor.pkl")}
-    preprocessor_config.update(path_dict)
-    OmegaConf.save(preprocessor_config, preprocessor_config_path)
+    if not task_preprocessor_dir.exists():
+        task_preprocessor_dir.mkdir(parents=True)
 
-    with open(preprocessor_config.path, mode="wb") as io:
+    path_dict = {"path": str(task_preprocessor_dir / "preprocessor.pkl")}
+    task_preprocessor_config.update(path_dict)
+    OmegaConf.save(task_preprocessor_config, task_preprocessor_config_path)
+
+    with open(task_preprocessor_config.path, mode="wb") as io:
         pickle.dump(preprocessor, io)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="nsmc")
+    parser.add_argument("--task", type=str, default="nsmc", choices=["nsmc", "trec6"])
+    parser.add_argument("--pipeline", type=str, default="pv00")
     parser.add_argument("--preprocessor", type=str, default="mecab_5_32")
     args = parser.parse_args()
     main(args)
