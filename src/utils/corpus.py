@@ -55,4 +55,4 @@ class TREC6Corpus(Dataset):
         return tokens2indices, label
 
 
-CorpusRegistry = {"nsmc": NSMCCorpus, "trec6": TREC6Corpus}
+CorpusRegistry = {"NSMCCorpus": NSMCCorpus, "TREC6Corpus": TREC6Corpus}
