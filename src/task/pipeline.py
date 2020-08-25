@@ -18,44 +18,54 @@ class DataPipeline(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         if stage == "fit" or stage is None:
-            self.train_ds = DataPipeline.get_dataset(self.dataset_builder,
-                                                     self.pipeline_config.dataset.path.train,
-                                                     self.preprocessor.encode)
+            self.train_dataset = DataPipeline.get_dataset(self.dataset_builder,
+                                                          self.pipeline_config.dataset.path.train,
+                                                          self.preprocessor.encode)
 
-            self.val_ds = DataPipeline.get_dataset(self.dataset_builder,
-                                                   self.pipeline_config.dataset.path.validation,
-                                                   self.preprocessor.encode)
+            self.val_dataset = DataPipeline.get_dataset(self.dataset_builder,
+                                                        self.pipeline_config.dataset.path.validation,
+                                                        self.preprocessor.encode)
 
         if stage == "test" or stage is None:
-            self.test_ds = self.dataset_builder(self.dataset_builder,
-                                                self.pipeline_config.dataset.path.test,
-                                                self.preprocessor.encode)
+            self.test_dataset = DataPipeline.get_dataset(self.dataset_builder,
+                                                         self.pipeline_config.dataset.path.test,
+                                                         self.preprocessor.encode)
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_ds,
-                          batch_size=self.pipeline_config.dataloader.params.batch_size,
-                          num_workers=self.pipeline_config.dataloader.params.num_workers,
-                          drop_last=True,
-                          shuffle=True)
+        return DataPipeline.get_dataloader(self.train_dataset,
+                                           batch_size=self.pipeline_config.dataloader.params.batch_size,
+                                           num_workers=self.pipeline_config.dataloader.params.num_workers,
+                                           drop_last=True,
+                                           shuffle=True)
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_ds,
-                          batch_size=self.pipeline_config.dataloader.params.batch_size,
-                          num_workers=self.pipeline_config.dataloader.params.num_workers,
-                          drop_last=False,
-                          shuffle=False)
+        return DataPipeline.get_dataloader(self.val_dataset,
+                                           batch_size=self.pipeline_config.dataloader.params.batch_size,
+                                           num_workers=self.pipeline_config.dataloader.params.num_workers,
+                                           drop_last=False,
+                                           shuffle=False)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_ds,
-                          batch_size=self.pipeline_config.dataloader.params.batch_size,
-                          num_workers=self.pipeline_config.dataloader.params.num_workers,
-                          drop_last=False,
-                          shuffle=False)
+        return DataPipeline.get_dataloader(self.test_dataset,
+                                           batch_size=self.pipeline_config.dataloader.params.batch_size,
+                                           num_workers=self.pipeline_config.dataloader.params.num_workers,
+                                           drop_last=False,
+                                           shuffle=False)
 
     @classmethod
     def get_dataset(cls, dataset_builder: Callable, filepath: str, encode_fn: Callable) -> Dataset:
         dataset = dataset_builder(filepath, encode_fn)
         return dataset
+
+    @classmethod
+    def get_dataloader(cls, dataset: Dataset, batch_size: int, num_workers: int, shuffle: bool, drop_last: bool,
+                       **kwargs) -> DataLoader:
+        return DataLoader(dataset,
+                          batch_size=batch_size,
+                          num_workers=num_workers,
+                          shuffle=shuffle,
+                          drop_last=drop_last,
+                          **kwargs)
 
     @classmethod
     def get_preprocessor(cls, preprocessor_config: DictConfig) -> PreProcessor:
