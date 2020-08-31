@@ -1,6 +1,6 @@
 benchmark: false
 deterministic: true
-distributed_backend: dp
+distributed_backend: ddp
 gamma: 0.95
 gpus: 2
 learning_rate: 0.001

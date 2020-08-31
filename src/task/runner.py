@@ -8,7 +8,7 @@ from pytorch_lightning import LightningModule, EvalResult, TrainResult
 from .metric import cross_entropy, acc
 
 
-class ClassificationTaskRunner(LightningModule):
+class ClassificationRunner(LightningModule):
     def __init__(self, model: nn.Module, runner_config: DictConfig):
         super().__init__()
         self.model = model

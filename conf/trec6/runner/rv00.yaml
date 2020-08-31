@@ -1,5 +1,5 @@
 version: rv00
-type: ClassificationTaskRunner
+type: ClassificationRunner
 optimizer:
   type: Adam
   params:
