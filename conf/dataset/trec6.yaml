@@ -1,5 +1,0 @@
-type: trec6
-path:
-  train: dataset/trec6/train.txt
-  test: dataset/trec6/test.txt
-  validation: dataset/trec6/validation.txt

@@ -1,6 +1,6 @@
 import pytest
 
-from src.model.ops import add, multiply, subtract
+from src.model.mock_ops import add, multiply, subtract
 
 
 def test_multiply():

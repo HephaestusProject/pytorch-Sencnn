@@ -15,17 +15,21 @@ from src.utils.vocab import Vocab
 
 
 def main(args: Namespace) -> None:
-    config_dir = Path("conf")
-    dataset_config_dir = config_dir / "dataset"
-    preprocessor_config_dir = config_dir / "preprocessor"
-    dataset_config = OmegaConf.load(dataset_config_dir / f"{args.dataset}.yaml")
+    parent_config_dir = Path("conf")
+    child_config_dir = parent_config_dir / args.dataset
+    pipeline_config_dir = child_config_dir / "pipeline"
+    preprocessor_config_dir = child_config_dir / "preprocessor"
+
+    pipeline_config_path = pipeline_config_dir / f"{args.pipeline}.yaml"
+    pipeline_config = OmegaConf.load(pipeline_config_path)
+
+    # task_pipeline_config = OmegaConf.load(task_dataset_dir / f"{args.task}.yaml")
     preprocessor_config_path = preprocessor_config_dir / f"{args.preprocessor}.yaml"
     preprocessor_config = OmegaConf.load(preprocessor_config_path)
 
-    parent_dir = Path("preprocessor")
-    child_dir = parent_dir / args.preprocessor
+
     # loading dataset
-    train = pd.read_csv(dataset_config.path.train, sep="\t").loc[
+    train = pd.read_csv(pipeline_config.dataset.path.train, sep="\t").loc[
         :, ["document", "label"]
     ]
 
@@ -52,7 +56,7 @@ def main(args: Namespace) -> None:
     # init vector
     zero_vector_indices = np.delete(np.where(embedding.sum(axis=-1) == 0)[0],
                                     [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
-                                    intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
+                                     intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
     non_zero_vector_indices = np.delete(np.arange(0, len(intermediate_vocab)),
                               np.append(zero_vector_indices,
                                         [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
@@ -80,11 +84,15 @@ def main(args: Namespace) -> None:
         pad_fn=PadSequence(length=preprocessor_config.params.max_len, pad_val=vocab.pad_token),
     )
 
-    # saving vocab
-    if not child_dir.exists():
-        child_dir.mkdir(parents=True)
 
-    path_dict = {"path": str(child_dir / "preprocessor.pkl")}
+    # saving vocab
+    parent_preprocessor_dir = Path("preprocessor")
+    child_preprocessor_dir = parent_preprocessor_dir / args.dataset / args.preprocessor
+
+    if not child_preprocessor_dir.exists():
+        child_preprocessor_dir.mkdir(parents=True)
+
+    path_dict = {"path": str(child_preprocessor_dir / "preprocessor.pkl")}
     preprocessor_config.update(path_dict)
     OmegaConf.save(preprocessor_config, preprocessor_config_path)
 
@@ -94,7 +102,8 @@ def main(args: Namespace) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="nsmc")
+    parser.add_argument("--dataset", type=str, default="nsmc", choices=["nsmc", "trec6"])
+    parser.add_argument("--pipeline", type=str, default="pv00")
     parser.add_argument("--preprocessor", type=str, default="mecab_5_32")
     args = parser.parse_args()
     main(args)

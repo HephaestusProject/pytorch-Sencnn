@@ -1,0 +1,19 @@
+version: rv00
+type: ClassificationRunner
+optimizer:
+  type: Adam
+  params:
+    learning_rate: 1e-3
+    scale_factor: 3
+scheduler:
+  type: ExponentialLR
+  params:
+    gamma: 0.95
+trainer:
+  type: Trainer
+  params:
+    max_epochs: 10
+    gpus: 2
+    distributed_backend: dp # train.py: ddp, evaluate.py: dp
+    benchmark: False
+    deterministic: True

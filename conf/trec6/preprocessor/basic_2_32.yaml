@@ -1,0 +1,9 @@
+version: basic_2_32
+type: PreProcessor
+params:
+  tokenizer: basic
+  min_freq: 2
+  max_len: 32
+  embedding_name: word2vec
+  embedding_source: GoogleNews-vectors-negative300
+path: preprocessor/trec6/basic_2_32/preprocessor.pkl
