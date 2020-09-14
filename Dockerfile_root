@@ -5,7 +5,7 @@ RUN apt-get update && \
       apt-get install -y sudo apt-utils make build-essential \
       libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
       libsqlite3-dev wget curl git libffi-dev liblzma-dev locales \
-      g++ openjdk-8-jdk
+      g++ openjdk-8-jdk openssh-server
 
 RUN locale-gen en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
@@ -42,3 +42,8 @@ RUN pip install pandas
 # WORKDIR 설정
 WORKDIR /root/workspace
 
+# openssh-server
+ARG PASSWD
+RUN echo  root:${PASSWD:-hephaestus} | chpasswd
+RUN echo "service ssh start" > /root/.bashrc
+RUn echo "PermitRootLogin yes" >> /etc/ssh/sshd_config

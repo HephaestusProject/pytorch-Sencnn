@@ -50,5 +50,5 @@ WORKDIR /home/user/workspace
 
 # openssh-server
 ARG PASSWORD
-RUN echo user:${PASSWORD:-hephaestus} | sudo chpasswd
+RUN echo user:${PASSWD:-hephaestus} | sudo chpasswd
 RUN echo "sudo service ssh start" > /home/user/.bashrc
