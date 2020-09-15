@@ -51,4 +51,5 @@ WORKDIR /home/user/workspace
 # openssh-server
 ARG PASSWORD
 RUN echo user:${PASSWD:-hephaestus} | sudo chpasswd
+RUN sudo sed -i 's_/usr/lib/openssh/sftp-server_internal-sftp_g' /etc/ssh/sshd_config
 RUN echo "sudo service ssh start" > /home/user/.bashrc
