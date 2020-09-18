@@ -35,7 +35,7 @@ def main(args) -> None:
     pipeline = DataPipeline(pipline_config=config.pipeline, preprocessor_config=config.preprocessor)
 
     dataset = pipeline.get_dataset(pipeline.dataset_builder,
-                                   getattr(config.pipeline.dataset.path, args.type),
+                                   config.pipeline.dataset.path.get(args.type),
                                    pipeline.preprocessor.encode)
     dataloader = pipeline.get_dataloader(dataset, shuffle=False, drop_last=False,
                                                **pipeline.pipeline_config.dataloader.params)
