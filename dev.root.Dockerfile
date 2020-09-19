@@ -38,6 +38,6 @@ WORKDIR /root/workspace
 ARG PASSWD
 RUN echo  root:${PASSWD:-hephaestus} | chpasswd
 RUN sed -i 's_/usr/lib/openssh/sftp-server_internal-sftp_g' /etc/ssh/sshd_config
-RUn echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "service ssh start" > /root/.bashrc
 
