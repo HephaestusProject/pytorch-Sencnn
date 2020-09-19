@@ -20,8 +20,7 @@ class ClassificationRunner(LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        opt = Adam(params=self.model.parameters(),
-                   lr=self.hparams.learning_rate)
+        opt = Adam(params=self.model.parameters(), lr=self.hparams.learning_rate)
         scheduler = ExponentialLR(opt, gamma=self.hparams.gamma)
         return [opt], [scheduler]
 
@@ -39,12 +38,14 @@ class ClassificationRunner(LightningModule):
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_acc = acc(mb_labels_hat, y_mb)
         result = TrainResult(minimize=mb_loss)
-        result.log_dict({"tr_loss": mb_loss, "tr_acc": mb_acc},
-                        prog_bar=True,
-                        logger=True,
-                        on_epoch=True,
-                        on_step=False,
-                        sync_dist=True)
+        result.log_dict(
+            {"tr_loss": mb_loss, "tr_acc": mb_acc},
+            prog_bar=True,
+            logger=True,
+            on_epoch=True,
+            on_step=False,
+            sync_dist=True,
+        )
         return result
 
     def validation_step(self, batch, batch_idx):
@@ -54,12 +55,14 @@ class ClassificationRunner(LightningModule):
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_acc = acc(mb_labels_hat, y_mb)
         result = EvalResult(checkpoint_on=mb_loss)
-        result.log_dict({"val_loss": mb_loss, "val_acc": mb_acc},
-                        prog_bar=True,
-                        logger=True,
-                        on_step=False,
-                        on_epoch=True,
-                        sync_dist=True)
+        result.log_dict(
+            {"val_loss": mb_loss, "val_acc": mb_acc},
+            prog_bar=True,
+            logger=True,
+            on_step=False,
+            on_epoch=True,
+            sync_dist=True,
+        )
         return result
 
     def test_step(self, batch, batch_idx):

@@ -44,7 +44,9 @@ def main(args: Namespace) -> None:
         train, validation = train_test_split(
             dataset, test_size=args.valid_ratio, random_state=args.seed
         )
-        test = pd.read_csv(pipeline_config.dataset.path.test, sep="\t").loc[:, ["document", "label"]]
+        test = pd.read_csv(pipeline_config.dataset.path.test, sep="\t").loc[
+            :, ["document", "label"]
+        ]
         test = test.loc[test["document"].isna().apply(lambda elm: not elm), :]
 
     elif args.dataset == "trec6":
@@ -62,7 +64,7 @@ def main(args: Namespace) -> None:
     path_dict = {
         "train": str(child_dataset_dir / "train.txt"),
         "validation": str(child_dataset_dir / "validation.txt"),
-        "test": str(child_dataset_dir / "test.txt")
+        "test": str(child_dataset_dir / "test.txt"),
     }
 
     pipeline_config.dataset.path.update(path_dict)
@@ -75,7 +77,9 @@ def main(args: Namespace) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="nsmc", choices=["nsmc", "trec6"])
+    parser.add_argument(
+        "--dataset", type=str, default="nsmc", choices=["nsmc", "trec6"]
+    )
     parser.add_argument("--pipeline", type=str, default="pv00")
     parser.add_argument("--valid_ratio", type=float, default=0.1)
     parser.add_argument("--seed", type=int, default=42)

@@ -25,7 +25,7 @@ class MultiChannelEmbedding(nn.Module):
             freeze=False,
             padding_idx=vocab.to_indices(vocab.pad_token),
         )
-        
+
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         static = self._static(x).permute(0, 2, 1)
         non_static = self._non_static(x).permute(0, 2, 1)
@@ -53,9 +53,13 @@ class ConvolutionLayer(nn.Module):
             in_channels=in_channels, out_channels=out_channels // 3, kernel_size=5
         )
 
-    def forward(self, x: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         static, non_static = x
-        tri_feature_map = F.relu(self._tri_gram_conv(static)) + F.relu(self._tri_gram_conv(non_static))
+        tri_feature_map = F.relu(self._tri_gram_conv(static)) + F.relu(
+            self._tri_gram_conv(non_static)
+        )
         tetra_feature_map = F.relu(self._tetra_gram_conv(static)) + F.relu(
             self._tetra_gram_conv(non_static)
         )
@@ -68,7 +72,9 @@ class ConvolutionLayer(nn.Module):
 class MaxOverTimePooling(nn.Module):
     """MaxOverTimePooling class"""
 
-    def forward(self, x: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]) -> torch.Tensor:
+    def forward(
+        self, x: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+    ) -> torch.Tensor:
         tri_feature_map, tetra_feature_map, penta_feature_map = x
         fmap = torch.cat(
             [

@@ -27,7 +27,6 @@ def main(args: Namespace) -> None:
     preprocessor_config_path = preprocessor_config_dir / f"{args.preprocessor}.yaml"
     preprocessor_config = OmegaConf.load(preprocessor_config_path)
 
-
     # loading dataset
     train = pd.read_csv(pipeline_config.dataset.path.train, sep="\t").loc[
         :, ["document", "label"]
@@ -47,23 +46,37 @@ def main(args: Namespace) -> None:
     )
 
     # connecting SISG embedding with vocab
-    embedding_source = nlp.embedding.create(preprocessor_config.params.embedding_name,
-                                            source=preprocessor_config.params.embedding_source)
+    embedding_source = nlp.embedding.create(
+        preprocessor_config.params.embedding_name,
+        source=preprocessor_config.params.embedding_source,
+    )
 
     intermediate_vocab.set_embedding(embedding_source)
     embedding = intermediate_vocab.embedding.idx_to_vec.asnumpy()
 
     # init vector
-    zero_vector_indices = np.delete(np.where(embedding.sum(axis=-1) == 0)[0],
-                                    [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
-                                     intermediate_vocab.to_indices(intermediate_vocab.padding_token)])
-    non_zero_vector_indices = np.delete(np.arange(0, len(intermediate_vocab)),
-                              np.append(zero_vector_indices,
-                                        [intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
-                                         intermediate_vocab.to_indices(intermediate_vocab.padding_token)]))
+    zero_vector_indices = np.delete(
+        np.where(embedding.sum(axis=-1) == 0)[0],
+        [
+            intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
+            intermediate_vocab.to_indices(intermediate_vocab.padding_token),
+        ],
+    )
+    non_zero_vector_indices = np.delete(
+        np.arange(0, len(intermediate_vocab)),
+        np.append(
+            zero_vector_indices,
+            [
+                intermediate_vocab.to_indices(intermediate_vocab.unknown_token),
+                intermediate_vocab.to_indices(intermediate_vocab.padding_token),
+            ],
+        ),
+    )
     vars_of_dim = np.var(embedding[non_zero_vector_indices], axis=0)
 
-    initialized_vectors = np.random.uniform(-vars_of_dim, vars_of_dim, size=embedding[zero_vector_indices].shape)
+    initialized_vectors = np.random.uniform(
+        -vars_of_dim, vars_of_dim, size=embedding[zero_vector_indices].shape
+    )
     embedding[zero_vector_indices] = initialized_vectors
 
     vocab = Vocab(
@@ -81,9 +94,10 @@ def main(args: Namespace) -> None:
     preprocessor = PreProcessor(
         vocab,
         tokenize_fn=tokenize_fn,
-        pad_fn=PadSequence(length=preprocessor_config.params.max_len, pad_val=vocab.pad_token),
+        pad_fn=PadSequence(
+            length=preprocessor_config.params.max_len, pad_val=vocab.pad_token
+        ),
     )
-
 
     # saving vocab
     parent_preprocessor_dir = Path("preprocessor")
@@ -102,7 +116,9 @@ def main(args: Namespace) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="nsmc", choices=["nsmc", "trec6"])
+    parser.add_argument(
+        "--dataset", type=str, default="nsmc", choices=["nsmc", "trec6"]
+    )
     parser.add_argument("--pipeline", type=str, default="pv00")
     parser.add_argument("--preprocessor", type=str, default="mecab_5_32")
     args = parser.parse_args()

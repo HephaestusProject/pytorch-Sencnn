@@ -13,12 +13,12 @@ def basic_tokenize(sentence: str) -> List[str]:
         Tokenization/string cleaning for all datasets except for SST.
         """
         string = re.sub(r"[^A-Za-z0-9(),!?\'\`]", " ", string)
-        string = re.sub(r"\'s", " \'s", string)
-        string = re.sub(r"\'ve", " \'ve", string)
-        string = re.sub(r"n\'t", " n\'t", string)
-        string = re.sub(r"\'re", " \'re", string)
-        string = re.sub(r"\'d", " \'d", string)
-        string = re.sub(r"\'ll", " \'ll", string)
+        string = re.sub(r"\'s", " 's", string)
+        string = re.sub(r"\'ve", " 've", string)
+        string = re.sub(r"n\'t", " n't", string)
+        string = re.sub(r"\'re", " 're", string)
+        string = re.sub(r"\'d", " 'd", string)
+        string = re.sub(r"\'ll", " 'll", string)
         string = re.sub(r",", " , ", string)
         string = re.sub(r"!", " ! ", string)
         string = re.sub(r"\(", " ( ", string)
@@ -30,4 +30,8 @@ def basic_tokenize(sentence: str) -> List[str]:
     return clean_str(sentence).split(" ")
 
 
-TokenizationRegistry = {"mecab": mecab_tokenize, "okt": okt_tokenize, "basic": basic_tokenize}
+TokenizationRegistry = {
+    "mecab": mecab_tokenize,
+    "okt": okt_tokenize,
+    "basic": basic_tokenize,
+}

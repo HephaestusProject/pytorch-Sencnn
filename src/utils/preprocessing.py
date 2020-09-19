@@ -32,13 +32,11 @@ class PreProcessor:
         return list_of_tokens
 
     def encode(self, string) -> List[int]:
-        list_of_indices = self._vocab.to_indices(
-            self.pad(self.tokenize(string))
-        )
+        list_of_indices = self._vocab.to_indices(self.pad(self.tokenize(string)))
         return list_of_indices
 
     @property
-    def vocab(self)-> Vocab:
+    def vocab(self) -> Vocab:
         return self._vocab
 
 

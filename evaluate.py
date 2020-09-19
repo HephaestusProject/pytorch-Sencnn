@@ -21,9 +21,16 @@ def get_config(args: Namespace) -> DictConfig:
     config = OmegaConf.create()
     model_config = OmegaConf.load(model_config_dir / f"{args.model}.yaml")
     pipeline_config = OmegaConf.load(pipeline_config_dir / f"{args.pipeline}.yaml")
-    preprocessor_config = OmegaConf.load(preprocessor_config_dir / f"{args.preprocessor}.yaml")
+    preprocessor_config = OmegaConf.load(
+        preprocessor_config_dir / f"{args.preprocessor}.yaml"
+    )
     runner_config = OmegaConf.load(runner_config_dir / f"{args.runner}.yaml")
-    config.update(model=model_config, pipeline=pipeline_config, preprocessor=preprocessor_config, runner=runner_config)
+    config.update(
+        model=model_config,
+        pipeline=pipeline_config,
+        preprocessor=preprocessor_config,
+        runner=runner_config,
+    )
     return config
 
 
@@ -32,24 +39,34 @@ def main(args) -> None:
     config = get_config(args)
 
     # prepare dataloader
-    pipeline = DataPipeline(pipline_config=config.pipeline, preprocessor_config=config.preprocessor)
+    pipeline = DataPipeline(
+        pipline_config=config.pipeline, preprocessor_config=config.preprocessor
+    )
 
-    dataset = pipeline.get_dataset(pipeline.dataset_builder,
-                                   config.pipeline.dataset.path.get(args.type),
-                                   pipeline.preprocessor.encode)
-    dataloader = pipeline.get_dataloader(dataset, shuffle=False, drop_last=False,
-                                         **pipeline.pipeline_config.dataloader.params)
+    dataset = pipeline.get_dataset(
+        pipeline.dataset_builder,
+        config.pipeline.dataset.path.get(args.type),
+        pipeline.preprocessor.encode,
+    )
+    dataloader = pipeline.get_dataloader(
+        dataset,
+        shuffle=False,
+        drop_last=False,
+        **pipeline.pipeline_config.dataloader.params,
+    )
 
     # restore runner
     model = SenCNN(pipeline.preprocessor.vocab, **config.model.params)
     runner = ClassificationRunner(model, config.runner)
-    checkpoint_path = f"exp/{args.dataset}/{args.model}/{args.runner}/{args.checkpoint}.ckpt"
+    checkpoint_path = (
+        f"exp/{args.dataset}/{args.model}/{args.runner}/{args.checkpoint}.ckpt"
+    )
     state_dict = torch.load(checkpoint_path)
     runner.load_state_dict(state_dict.get("state_dict"))
 
-    trainer = Trainer(**config.runner.trainer.params,
-                      logger=False,
-                      checkpoint_callback=False)
+    trainer = Trainer(
+        **config.runner.trainer.params, logger=False, checkpoint_callback=False
+    )
     results_path = Path(f"exp/{args.dataset}/{args.model}/{args.runner}/results.json")
 
     if results_path.exists():
@@ -57,29 +74,42 @@ def main(args) -> None:
             results = json.load(io)
 
         result = trainer.test(runner, test_dataloaders=dataloader)
-        results.update({"checkpoint": args.checkpoint,
-                        f"{args.type}": result
-                        })
+        results.update({"checkpoint": args.checkpoint, f"{args.type}": result})
 
     else:
         results = {}
         result = trainer.test(runner, test_dataloaders=dataloader)
-        results.update({"checkpoint": args.checkpoint,
-                        f"{args.type}": result
-                        })
+        results.update({"checkpoint": args.checkpoint, f"{args.type}": result})
 
-    with open(f"exp/{args.dataset}/{args.model}/{args.runner}/results.json", mode="w") as io:
+    with open(
+        f"exp/{args.dataset}/{args.model}/{args.runner}/results.json", mode="w"
+    ) as io:
         json.dump(results, io, indent=4)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--dataset", default="nsmc", type=str, choices=["nsmc", "trec6"])
-    parser.add_argument("--type", default="test", type=str, choices=["train", "validation", "test"])
-    parser.add_argument("--model", default="sencnn", type=str, help="configuration of model")
-    parser.add_argument("--pipeline", default="pv00", type=str, help="configuration of pipeline")
-    parser.add_argument("--runner", default="rv00", type=str, help="configuration of runner")
-    parser.add_argument("--preprocessor", default="mecab_5_32", type=str, choices=["mecab_5_32", "baisic_2_32"])
+    parser.add_argument(
+        "--dataset", default="nsmc", type=str, choices=["nsmc", "trec6"]
+    )
+    parser.add_argument(
+        "--type", default="test", type=str, choices=["train", "validation", "test"]
+    )
+    parser.add_argument(
+        "--model", default="sencnn", type=str, help="configuration of model"
+    )
+    parser.add_argument(
+        "--pipeline", default="pv00", type=str, help="configuration of pipeline"
+    )
+    parser.add_argument(
+        "--runner", default="rv00", type=str, help="configuration of runner"
+    )
+    parser.add_argument(
+        "--preprocessor",
+        default="mecab_5_32",
+        type=str,
+        choices=["mecab_5_32", "baisic_2_32"],
+    )
     parser.add_argument("--checkpoint", default="epoch=02-val_acc=0.8655", type=str)
     args = parser.parse_args([])
     main(args)
