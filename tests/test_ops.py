@@ -9,8 +9,9 @@ def test_multiply():
 
 
 def test_add():
-    result = add(2, 3)
-    assert result == 5
+    result = add(2,
+                 4)
+    assert result == 6
 
 
 def test_subtract():
