@@ -9,8 +9,7 @@ def test_multiply():
 
 
 def test_add():
-    result = add(2,
-                 4)
+    result = add(2, 4)
     assert result == 6
 
 
