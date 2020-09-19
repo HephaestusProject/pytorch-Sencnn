@@ -38,7 +38,7 @@ def main(args) -> None:
                                    config.pipeline.dataset.path.get(args.type),
                                    pipeline.preprocessor.encode)
     dataloader = pipeline.get_dataloader(dataset, shuffle=False, drop_last=False,
-                                               **pipeline.pipeline_config.dataloader.params)
+                                         **pipeline.pipeline_config.dataloader.params)
 
     # restore runner
     model = SenCNN(pipeline.preprocessor.vocab, **config.model.params)
@@ -76,10 +76,10 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--dataset", default="nsmc", type=str, choices=["nsmc", "trec6"])
     parser.add_argument("--type", default="test", type=str, choices=["train", "validation", "test"])
-    parser.add_argument("--model", default="sencnn", type=str)
-    parser.add_argument("--pipeline", default="pv00", type=str)
-    parser.add_argument("--runner", default="rv00", type=str)
-    parser.add_argument("--preprocessor", default="mecab_5_32", type=str)
+    parser.add_argument("--model", default="sencnn", type=str, help="configuration of model")
+    parser.add_argument("--pipeline", default="pv00", type=str, help="configuration of pipeline")
+    parser.add_argument("--runner", default="rv00", type=str, help="configuration of runner")
+    parser.add_argument("--preprocessor", default="mecab_5_32", type=str, choices=["mecab_5_32", "baisic_2_32"])
     parser.add_argument("--checkpoint", default="epoch=02-val_acc=0.8655", type=str)
-    args = parser.parse_args()
+    args = parser.parse_args([])
     main(args)
