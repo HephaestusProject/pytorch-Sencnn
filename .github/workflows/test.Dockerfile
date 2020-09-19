@@ -22,22 +22,11 @@ RUN git clone https://github.com/pyenv/pyenv.git .pyenv
 
 # python 설치
 RUN pyenv install 3.8.5 && \
-    pyenv global 3.8.5 $$ \
-    pyenv rehash
+    pyenv global 3.8.5
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 SHELL ["/bin/bash", "-c"]
 RUN pip install --no-cache-dir konlpy
 RUN bash <(curl -s https://raw.githubusercontent.com/konlpy/konlpy/master/scripts/mecab.sh)
 RUN pip install --no-cache-dir torch pytorch-lightning mxnet gluonnlp omegaconf pytest pandas scikit-learn
-
-# WORKDIR 설정
-WORKDIR /root/workspace
-
-# openssh-server
-ARG PASSWD
-RUN echo  root:${PASSWD:-hephaestus} | chpasswd
-RUN sed -i 's_/usr/lib/openssh/sftp-server_internal-sftp_g' /etc/ssh/sshd_config
-RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-RUN echo "service ssh start" > /root/.bashrc
 
