@@ -14,7 +14,7 @@ on:
 jobs:
     black-and-isort:
         # The type of runner that the job will run on
-        runs-on: aisolab/hephaestus:pytorch-sencnn-test
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 python-version:

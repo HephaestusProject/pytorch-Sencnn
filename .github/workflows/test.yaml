@@ -14,7 +14,8 @@ on:
 jobs:
     Pytest:
         # The type of runner that the job will run on
-        runs-on: aisolab/hephaestus:pytorch-sencnn-test
+        runs-on: ubuntu-latest
+        container: aisolab/hephaestus:pytorch-sencnn-test
         strategy:
             matrix:
                 python-version:
