@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
-from .ops import MultiChannelEmbedding, ConvolutionLayer, MaxOverTimePooling
+
 from ..utils.vocab import Vocab
+from .ops import ConvolutionLayer, MaxOverTimePooling, MultiChannelEmbedding
 
 
 class SenCNN(nn.Module):

@@ -1,14 +1,15 @@
 import argparse
-import itertools
-import pickle
-import gluonnlp as nlp
-import pandas as pd
-import numpy as np
-
 from argparse import Namespace
 from collections import Counter
+import itertools
 from pathlib import Path
+import pickle
+
+import gluonnlp as nlp
+import numpy as np
 from omegaconf import OmegaConf
+import pandas as pd
+
 from src.utils.preprocessing import PadSequence, PreProcessor
 from src.utils.tokenization import TokenizationRegistry
 from src.utils.vocab import Vocab

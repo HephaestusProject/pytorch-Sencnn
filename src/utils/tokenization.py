@@ -1,7 +1,7 @@
 import re
+from typing import List
 
 from konlpy.tag import Mecab, Okt
-from typing import List
 
 mecab_tokenize = Mecab().morphs
 okt_tokenize = Okt().morphs
