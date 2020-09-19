@@ -1,9 +1,10 @@
 import pickle
+from typing import Callable, Optional
 
 from omegaconf import DictConfig
-from typing import Optional, Callable
-from torch.utils.data import DataLoader, Dataset
 from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader, Dataset
+
 from ..utils.corpus import CorpusRegistry
 from ..utils.preprocessing import PreProcessor
 

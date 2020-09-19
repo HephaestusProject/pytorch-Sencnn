@@ -1,13 +1,14 @@
-import torch
-import json
-
-from pathlib import Path
 from argparse import ArgumentParser, Namespace
-from omegaconf import OmegaConf, DictConfig
+import json
+from pathlib import Path
+
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
+import torch
+
 from src.model.net import SenCNN
-from src.task.runner import ClassificationRunner
 from src.task.pipeline import DataPipeline
+from src.task.runner import ClassificationRunner
 
 
 def get_config(args: Namespace) -> DictConfig:

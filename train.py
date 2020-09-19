@@ -1,9 +1,11 @@
-from pathlib import Path
 from argparse import ArgumentParser, Namespace
-from omegaconf import OmegaConf, DictConfig
+from pathlib import Path
+
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
+
 from src.model.net import SenCNN
 from src.task.pipeline import DataPipeline
 from src.task.runner import ClassificationRunner

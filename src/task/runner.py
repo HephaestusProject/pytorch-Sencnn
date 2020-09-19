@@ -1,11 +1,11 @@
+from omegaconf import DictConfig
+from pytorch_lightning import EvalResult, LightningModule, TrainResult
 import torch
 import torch.nn as nn
-
-from omegaconf import DictConfig
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
-from pytorch_lightning import LightningModule, EvalResult, TrainResult
-from .metric import cross_entropy, acc
+
+from .metric import acc, cross_entropy
 
 
 class ClassificationRunner(LightningModule):
