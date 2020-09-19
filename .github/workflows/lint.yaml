@@ -6,16 +6,17 @@ name: Lint
 # events but only for the master branch
 on: 
   push:
-    - master
-    - feature*
-    - hotfix*
+    branches:
+      - master
+      - feature*
+      - hotfix*
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
     black-and-isort:
         # The type of runner that the job will run on
         runs-on: ubuntu-latest
-        container: aisolab/hephaestus:pytorch-sencnn-test
+
         strategy:
             matrix:
                 python-version:
@@ -30,12 +31,12 @@ jobs:
                   fetch-depth: 0
                   ref: ${{ github.BRANCH }}
 
-            - name: Prerequeist
+            - name: Prerequisite
               run: |
                   pip3 install --upgrade pip setuptools
                   pip3 install black --no-cache --user
                   pip3 install isort --no-cache --user
-
+                  pip3 install -r requirements.txt --user
             - name: apply isort
               run: python3 -m isort .
 
@@ -45,10 +46,9 @@ jobs:
             - name: commit & push
               run: |
                   git config --local user.email "action@github.com"
-                  git config --local user.name "GitHub Action"                                    
+                  git config --local user.name "GitHub Action"
                   git add -A && git diff-index --cached --quiet HEAD || git commit -m 'style: isort/black'
                   git push
-
             - name: Slack-Notification
               uses: 8398a7/action-slack@v3
               with:
