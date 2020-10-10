@@ -1,11 +1,11 @@
-import pytest
-import os
 import itertools
-
+import os
 from pathlib import Path
 
-from src.utils.vocab import Vocab
+import pytest
+
 from src.utils.tokenization import mecab_tokenize
+from src.utils.vocab import Vocab
 
 
 def setup_function():
@@ -13,8 +13,15 @@ def setup_function():
     nsmc_samples_path = test_dir / "nsmc_samples.txt"
     trec6_samples_path = test_dir / "trec6_samples.txt"
 
-    list_of_nsmc_samples = ["document\tlabel\n", "재미없을거 같네요 하하하\t0\n정말 좋네요 이 영화 강추!!!!\t1"]
-    list_of_trec6_samples = ["document\tlabel\n", "How big is a quart ?\t5\n", "How old is Jeremy Piven ?\t5"]
+    list_of_nsmc_samples = [
+        "document\tlabel\n",
+        "재미없을거 같네요 하하하\t0\n정말 좋네요 이 영화 강추!!!!\t1",
+    ]
+    list_of_trec6_samples = [
+        "document\tlabel\n",
+        "How big is a quart ?\t5\n",
+        "How old is Jeremy Piven ?\t5",
+    ]
 
     with open(nsmc_samples_path, mode="w", encoding="utf-8") as io:
         for nsmc_sample in list_of_nsmc_samples:
@@ -51,12 +58,16 @@ def filepath_of_resources():
 
 def test_Vocab(filepath_of_resources):
     list_of_nsmc_samples = []
-    with open(filepath_of_resources.nsmc_samples_path, mode="r", encoding="utf-8") as nsmc_samples:
+    with open(
+        filepath_of_resources.nsmc_samples_path, mode="r", encoding="utf-8"
+    ) as nsmc_samples:
         for idx, nsmc_sample in enumerate(nsmc_samples):
             if idx == 0:
                 continue
             list_of_nsmc_samples.append(nsmc_sample.strip().split("\t")[0])
-    footprint = itertools.chain.from_iterable([mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples])
+    footprint = itertools.chain.from_iterable(
+        [mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples]
+    )
     set_of_tokens = set()
 
     for token in footprint:
@@ -76,9 +87,20 @@ def test_Vocab(filepath_of_resources):
 
     assert vocab.pad_token == "<pad>"
     assert vocab.unk_token == "<unk>"
-    assert vocab.idx_to_token == ["<unk>", "<pad>", "!",
-                                  "!!!", "강추", "같",
-                                  "거", "네요", "영화",
-                                  "을", "이", "재미없",
-                                  "정말", "좋", "하하하"]
-
+    assert vocab.idx_to_token == [
+        "<unk>",
+        "<pad>",
+        "!",
+        "!!!",
+        "강추",
+        "같",
+        "거",
+        "네요",
+        "영화",
+        "을",
+        "이",
+        "재미없",
+        "정말",
+        "좋",
+        "하하하",
+    ]
