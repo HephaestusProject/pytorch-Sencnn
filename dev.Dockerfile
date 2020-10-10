@@ -27,8 +27,8 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 RUN git clone https://github.com/pyenv/pyenv.git .pyenv
 
 # python 설치
-RUN pyenv install 3.8.5 && \
-        pyenv global 3.8.5 && \
+RUN pyenv install 3.7.9 && \
+        pyenv global 3.7.9 && \
         pyenv rehash && \
         pip install --no-cache-dir --upgrade pip setuptools wheel
 
