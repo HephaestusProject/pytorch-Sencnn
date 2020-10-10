@@ -1,10 +1,9 @@
 import re
 from typing import List
 
-from konlpy.tag import Mecab, Okt
+from konlpy.tag import Mecab
 
 mecab_tokenize = Mecab().morphs
-okt_tokenize = Okt().morphs
 
 
 def basic_tokenize(sentence: str) -> List[str]:
@@ -32,6 +31,5 @@ def basic_tokenize(sentence: str) -> List[str]:
 
 TokenizationRegistry = {
     "mecab": mecab_tokenize,
-    "okt": okt_tokenize,
     "basic": basic_tokenize,
 }
