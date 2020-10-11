@@ -14,7 +14,7 @@ ENV LANG en_US.UTF-8
 USER root
 WORKDIR /root
 
-# pyenv 설치/ 설정
+# pyenv 설치 / 설정
 ENV HOME /root
 ENV PYENV_ROOT $HOME/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
@@ -30,3 +30,7 @@ RUN pip install --no-cache-dir konlpy
 RUN bash <(curl -s https://raw.githubusercontent.com/konlpy/konlpy/master/scripts/mecab.sh)
 RUN pip install --no-cache-dir torch pytorch-lightning mxnet gluonnlp omegaconf pytest pandas scikit-learn
 
+# pyenv 추가 설정
+RUN echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+RUN echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+RUN echo 'eval "$(pyenv init -)"' >> ~/.bashrc
