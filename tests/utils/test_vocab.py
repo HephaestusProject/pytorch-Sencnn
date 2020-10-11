@@ -1,61 +1,17 @@
-import pytest
-import os
 import itertools
-
-from pathlib import Path
 
 from src.utils.vocab import Vocab
 from src.utils.tokenization import mecab_tokenize
 
 
-def setup_function():
-    test_dir = Path.cwd() / "tests"
-    nsmc_samples_path = test_dir / "nsmc_samples.txt"
-    trec6_samples_path = test_dir / "trec6_samples.txt"
-
-    list_of_nsmc_samples = ["document\tlabel\n", "재미없을거 같네요 하하하\t0\n정말 좋네요 이 영화 강추!!!!\t1"]
-    list_of_trec6_samples = ["document\tlabel\n", "How big is a quart ?\t5\n", "How old is Jeremy Piven ?\t5"]
-
-    with open(nsmc_samples_path, mode="w", encoding="utf-8") as io:
-        for nsmc_sample in list_of_nsmc_samples:
-            io.write(nsmc_sample)
-
-    with open(trec6_samples_path, mode="w", encoding="utf-8") as io:
-        for trec6_sample in list_of_trec6_samples:
-            io.write(trec6_sample)
-
-
-def teardown_function():
-    test_dir = Path.cwd() / "tests"
-    nsmc_samples_path = test_dir / "nsmc_samples.txt"
-    trec6_samples_path = test_dir / "trec6_samples.txt"
-
-    os.remove(nsmc_samples_path)
-    os.remove(trec6_samples_path)
-
-
-@pytest.fixture
-def filepath_of_resources():
-    test_dir = Path.cwd() / "tests"
-    nsmc_samples_path = test_dir / "nsmc_samples.txt"
-    trec6_samples_path = test_dir / "trec6_samples.txt"
-
-    class ResourcePaths:
-        pass
-
-    resource_paths = ResourcePaths
-    resource_paths.nsmc_samples_path = nsmc_samples_path
-    resource_paths.trec6_samples_path = trec6_samples_path
-    return resource_paths
-
-
-def test_Vocab(filepath_of_resources):
+def test_Vocab(filepath_of_each_samples):
     list_of_nsmc_samples = []
-    with open(filepath_of_resources.nsmc_samples_path, mode="r", encoding="utf-8") as nsmc_samples:
+    with open(filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8") as nsmc_samples:
         for idx, nsmc_sample in enumerate(nsmc_samples):
             if idx == 0:
                 continue
             list_of_nsmc_samples.append(nsmc_sample.strip().split("\t")[0])
+
     footprint = itertools.chain.from_iterable([mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples])
     set_of_tokens = set()
 
