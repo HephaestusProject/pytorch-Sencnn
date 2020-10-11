@@ -2,6 +2,7 @@ import itertools
 
 from src.utils.vocab import Vocab
 from src.utils.tokenization import mecab_tokenize
+from src.utils.vocab import Vocab
 
 
 def test_Vocab(filepath_of_each_samples):
@@ -32,9 +33,21 @@ def test_Vocab(filepath_of_each_samples):
 
     assert vocab.pad_token == "<pad>"
     assert vocab.unk_token == "<unk>"
-    assert vocab.idx_to_token == ["<unk>", "<pad>", "!",
-                                  "!!!", "강추", "같",
-                                  "거", "네요", "영화",
-                                  "을", "이", "재미없",
-                                  "정말", "좋", "하하하"]
+    assert vocab.idx_to_token == [
+        "<unk>",
+        "<pad>",
+        "!",
+        "!!!",
+        "강추",
+        "같",
+        "거",
+        "네요",
+        "영화",
+        "을",
+        "이",
+        "재미없",
+        "정말",
+        "좋",
+        "하하하",
+    ]
 
