@@ -1,23 +1,27 @@
-import pytest
 import itertools
 
+import pytest
 
 from src.utils.corpus import NSMCCorpus
+from src.utils.preprocessing import PadSequence, PreProcessor
 from src.utils.tokenization import mecab_tokenize
 from src.utils.vocab import Vocab
-from src.utils.preprocessing import PadSequence, PreProcessor
 
 
 @pytest.fixture(scope="module")
 def sample_Vocab(filepath_of_each_samples):
     list_of_nsmc_samples = []
-    with open(filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8") as nsmc_samples:
+    with open(
+        filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8"
+    ) as nsmc_samples:
         for idx, nsmc_sample in enumerate(nsmc_samples):
             if idx == 0:
                 continue
             list_of_nsmc_samples.append(nsmc_sample.strip().split("\t")[0])
 
-    footprint = itertools.chain.from_iterable([mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples])
+    footprint = itertools.chain.from_iterable(
+        [mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples]
+    )
     set_of_tokens = set()
 
     for token in footprint:
@@ -39,22 +43,40 @@ def sample_Vocab(filepath_of_each_samples):
 
 @pytest.fixture(scope="module")
 def sample_PadSequence(sample_Vocab):
-    padder = PadSequence(length=16,
-                         pad_val=sample_Vocab.pad_token)
+    padder = PadSequence(length=16, pad_val=sample_Vocab.pad_token)
     return padder
 
 
 @pytest.fixture(scope="module")
 def sample_PreProcessor(sample_Vocab, sample_PadSequence):
-    preprocessor = PreProcessor(vocab=sample_Vocab,
-                                tokenize_fn=mecab_tokenize,
-                                pad_fn=sample_PadSequence)
+    preprocessor = PreProcessor(
+        vocab=sample_Vocab, tokenize_fn=mecab_tokenize, pad_fn=sample_PadSequence
+    )
     return preprocessor
 
 
 def test_Corpus(sample_PreProcessor, filepath_of_each_samples):
-    nsmc_corpus = NSMCCorpus(filepath_of_each_samples.nsmc_samples_filepath, sample_PreProcessor.encode)
+    nsmc_corpus = NSMCCorpus(
+        filepath_of_each_samples.nsmc_samples_filepath, sample_PreProcessor.encode
+    )
 
     assert len(nsmc_corpus) == 2
-    assert nsmc_corpus[0][0].tolist() == [11, 9, 6, 5, 7, 14, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    assert nsmc_corpus[0][0].tolist() == [
+        11,
+        9,
+        6,
+        5,
+        7,
+        14,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+    ]
     assert nsmc_corpus[0][1].item() == 0

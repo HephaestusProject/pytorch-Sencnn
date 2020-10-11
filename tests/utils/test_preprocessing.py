@@ -1,21 +1,26 @@
-import pytest
 import itertools
 
+import pytest
+
+from src.utils.preprocessing import PadSequence, PreProcessor
 from src.utils.tokenization import mecab_tokenize
 from src.utils.vocab import Vocab
-from src.utils.preprocessing import PadSequence, PreProcessor
 
 
 @pytest.fixture(scope="module")
 def sample_Vocab(filepath_of_each_samples):
     list_of_nsmc_samples = []
-    with open(filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8") as nsmc_samples:
+    with open(
+        filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8"
+    ) as nsmc_samples:
         for idx, nsmc_sample in enumerate(nsmc_samples):
             if idx == 0:
                 continue
             list_of_nsmc_samples.append(nsmc_sample.strip().split("\t")[0])
 
-    footprint = itertools.chain.from_iterable([mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples])
+    footprint = itertools.chain.from_iterable(
+        [mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples]
+    )
     set_of_tokens = set()
 
     for token in footprint:
@@ -47,10 +52,19 @@ def test_PadSequence():
 
 
 def test_PreProcessor(sample_Vocab, sample_PadSequence):
-    preprocessor = PreProcessor(vocab=sample_Vocab,
-                                tokenize_fn=mecab_tokenize,
-                                pad_fn=sample_PadSequence)
+    preprocessor = PreProcessor(
+        vocab=sample_Vocab, tokenize_fn=mecab_tokenize, pad_fn=sample_PadSequence
+    )
 
     assert preprocessor.tokenize("안녕하세요.") == ["안녕", "하", "세요", "."]
-    assert preprocessor.pad(preprocessor.tokenize("안녕하세요.")) == ["안녕", "하", "세요", ".", "<pad>", "<pad>", "<pad>", "<pad>"]
+    assert preprocessor.pad(preprocessor.tokenize("안녕하세요.")) == [
+        "안녕",
+        "하",
+        "세요",
+        ".",
+        "<pad>",
+        "<pad>",
+        "<pad>",
+        "<pad>",
+    ]
     assert preprocessor.encode("안녕하세요.") == [0, 0, 0, 0, 1, 1, 1, 1]

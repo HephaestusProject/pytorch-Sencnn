@@ -1,19 +1,22 @@
 import itertools
 
-from src.utils.vocab import Vocab
 from src.utils.tokenization import mecab_tokenize
 from src.utils.vocab import Vocab
 
 
 def test_Vocab(filepath_of_each_samples):
     list_of_nsmc_samples = []
-    with open(filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8") as nsmc_samples:
+    with open(
+        filepath_of_each_samples.nsmc_samples_filepath, mode="r", encoding="utf-8"
+    ) as nsmc_samples:
         for idx, nsmc_sample in enumerate(nsmc_samples):
             if idx == 0:
                 continue
             list_of_nsmc_samples.append(nsmc_sample.strip().split("\t")[0])
 
-    footprint = itertools.chain.from_iterable([mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples])
+    footprint = itertools.chain.from_iterable(
+        [mecab_tokenize(nsmc_sample) for nsmc_sample in list_of_nsmc_samples]
+    )
     set_of_tokens = set()
 
     for token in footprint:
@@ -50,4 +53,3 @@ def test_Vocab(filepath_of_each_samples):
         "좋",
         "하하하",
     ]
-
