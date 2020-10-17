@@ -109,8 +109,8 @@ if __name__ == "__main__":
         "--preprocessor",
         default="mecab_5_32",
         type=str,
-        choices=["mecab_5_32", "baisic_2_32"],
+        choices=["mecab_5_32", "basic_2_32"],
     )
-    parser.add_argument("--checkpoint", default="epoch=02-val_acc=0.8655", type=str)
-    args = parser.parse_args([])
+    parser.add_argument("--checkpoint", default="epoch=02-val_acc=0.8653", type=str)
+    args = parser.parse_args()
     main(args)
