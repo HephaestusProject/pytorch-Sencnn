@@ -77,4 +77,3 @@ class ClassificationRunner(LightningModule):
             on_epoch=True,
             sync_dist=True,
         )
-        return self._result
