@@ -1,5 +1,5 @@
 from omegaconf import DictConfig
-from pytorch_lightning import EvalResult, LightningModule, TrainResult
+from pytorch_lightning import LightningModule
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -37,16 +37,15 @@ class ClassificationRunner(LightningModule):
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_acc = acc(mb_labels_hat, y_mb)
-        result = TrainResult(minimize=mb_loss)
-        result.log_dict(
-            {"tr_loss": mb_loss, "tr_acc": mb_acc},
-            prog_bar=True,
-            logger=True,
-            on_epoch=True,
-            on_step=False,
-            sync_dist=True,
-        )
-        return result
+
+        self.log_dict({"tr_loss": mb_loss, "tr_acc": mb_acc},
+                      prog_bar=True,
+                      logger=True,
+                      on_epoch=True,
+                      on_step=False,
+                      sync_dist=True,
+                      )
+        return mb_loss
 
     def validation_step(self, batch, batch_idx):
         x_mb, y_mb = batch
@@ -54,18 +53,25 @@ class ClassificationRunner(LightningModule):
         mb_loss = cross_entropy(y_hat_mb, y_mb)
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_acc = acc(mb_labels_hat, y_mb)
-        result = EvalResult(checkpoint_on=mb_loss)
-        result.log_dict(
+        self.log_dict(
             {"val_loss": mb_loss, "val_acc": mb_acc},
             prog_bar=True,
             logger=True,
             on_step=False,
             on_epoch=True,
-            sync_dist=True,
-        )
-        return result
+            sync_dist=True)
 
     def test_step(self, batch, batch_idx):
-        result = self.validation_step(batch, batch_idx)
-        result.rename_keys({"val_loss": "loss", "val_acc": "acc"})
-        return result
+        x_mb, y_mb = batch
+        y_hat_mb = self.model(x_mb)
+        mb_loss = cross_entropy(y_hat_mb, y_mb)
+        mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
+        mb_acc = acc(mb_labels_hat, y_mb)
+        self.log_dict(
+            {"loss": mb_loss, "acc": mb_acc},
+            prog_bar=True,
+            logger=False,
+            on_step=False,
+            on_epoch=True,
+            sync_dist=True)
+        return self._result

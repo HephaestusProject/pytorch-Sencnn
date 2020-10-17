@@ -112,5 +112,5 @@ if __name__ == "__main__":
         choices=["mecab_5_32", "baisic_2_32"],
     )
     parser.add_argument("--checkpoint", default="epoch=02-val_acc=0.8655", type=str)
-    args = parser.parse_args([])
+    args = parser.parse_args()
     main(args)
