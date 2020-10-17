@@ -38,13 +38,14 @@ class ClassificationRunner(LightningModule):
         mb_labels_hat = torch.argmax(y_hat_mb, dim=1)
         mb_acc = acc(mb_labels_hat, y_mb)
 
-        self.log_dict({"tr_loss": mb_loss, "tr_acc": mb_acc},
-                      prog_bar=True,
-                      logger=True,
-                      on_epoch=True,
-                      on_step=False,
-                      sync_dist=True,
-                      )
+        self.log_dict(
+            {"tr_loss": mb_loss, "tr_acc": mb_acc},
+            prog_bar=True,
+            logger=True,
+            on_epoch=True,
+            on_step=False,
+            sync_dist=True,
+        )
         return mb_loss
 
     def validation_step(self, batch, batch_idx):
@@ -59,7 +60,8 @@ class ClassificationRunner(LightningModule):
             logger=True,
             on_step=False,
             on_epoch=True,
-            sync_dist=True)
+            sync_dist=True,
+        )
 
     def test_step(self, batch, batch_idx):
         x_mb, y_mb = batch
@@ -73,5 +75,6 @@ class ClassificationRunner(LightningModule):
             logger=False,
             on_step=False,
             on_epoch=True,
-            sync_dist=True)
+            sync_dist=True,
+        )
         return self._result
