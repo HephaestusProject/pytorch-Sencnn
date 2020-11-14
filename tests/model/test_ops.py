@@ -1,11 +1,13 @@
-import torch
 import numpy as np
+import torch
 
-from src.model.ops import ConvolutionLayer, MultiChannelEmbedding, MaxOverTimePooling
+from src.model.ops import ConvolutionLayer, MaxOverTimePooling, MultiChannelEmbedding
 
 
 def test_MultiChannelEmbedding(sample_inputs, sample_vocab):
-    embedding = torch.tensor(np.repeat(0, 1500).astype(np.float32)).reshape(-1, 300, sample_inputs.shape[-1])
+    embedding = torch.tensor(np.repeat(0, 1500).astype(np.float32)).reshape(
+        -1, 300, sample_inputs.shape[-1]
+    )
     ops = MultiChannelEmbedding(vocab=sample_vocab)
     static, non_static = ops(sample_inputs)
     assert (static.numpy() == embedding.numpy()).all()
