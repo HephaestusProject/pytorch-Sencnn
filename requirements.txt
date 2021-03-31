@@ -17,7 +17,7 @@ iniconfig==1.0.1
 joblib==0.16.0
 JPype1==1.0.2
 konlpy==0.5.2
-lxml==4.5.2
+lxml==4.6.3
 Markdown==3.2.2
 mecab-python @ file:///tmp/mecab-python-0.996
 more-itertools==8.5.0
