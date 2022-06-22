@@ -22,7 +22,7 @@ Markdown==3.2.2
 mecab-python @ file:///tmp/mecab-python-0.996
 more-itertools==8.5.0
 mxnet==1.7.0.post1
-numpy==1.19.2
+numpy==1.22.0
 oauthlib==3.1.0
 omegaconf==2.0.2
 packaging==20.4
